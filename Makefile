@@ -4,7 +4,7 @@ MAKEFLAGS += --silent
 COMMIT_SHA=$(shell git rev-parse --short HEAD)
 DOCKER_REGISTRY=registry.digitalocean.com/mmess
 IMAGE_NAME=api
-MIGRATION_IMAGE_NAME=rental-migration
+MIGRATION_IMAGE_NAME=api-migration
 
 .PHONY: show_version \
 		setup \ 
@@ -59,10 +59,6 @@ push_image: do_registry_login
 push_migration_image: do_registry_login
 	docker push ${DOCKER_REGISTRY}/${MIGRATION_IMAGE_NAME}:${COMMIT_SHA}
 
-seed_db: migrate
-	cat db/seed/data.sql | docker-compose exec -T database \
-		psql "postgres://rental:rental@localhost:5432/rental?sslmode=disable" -
-
 migrate:
 	docker-compose up -d database
 	sleep 2 # wait for database to be ready, TODO: find a way to make this deterministic
@@ -75,7 +71,16 @@ update_requirements:
 	pip-compile requirements.in
 	pip-compile requirements-dev.in
 
-sync_requirements:
+sync_dev_requirements:
 	pip-sync requirements.txt requirements-dev.txt
+
+sync_requirements:
+	pip-sync requirements.txt
+
+build_local:
+	docker-compose build
+
+run: build_local
+	docker-compose run --service-ports web
 
 all: build_image build_migration_image push_image push_migration_image

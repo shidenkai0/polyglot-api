@@ -1,5 +1,7 @@
 # Base image
-FROM python:3.11-slim AS base
+FROM python:3.11-bullseye AS base
+
+ARG DEV=0
 
 # Set working directory
 WORKDIR /app
@@ -7,39 +9,41 @@ WORKDIR /app
 # Copy requirements files
 COPY requirements.txt requirements-dev.txt ./
 
-# Install production requirements
-RUN pip install --no-cache-dir -r requirements.txt
+# Create and activate virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Development image
-FROM base AS dev
+# Install requirements based on DEV arg
+RUN if [ "$DEV" = "1" ] ; then \
+    pip install --no-cache-dir -r  requirements.txt -r requirements-dev.txt ; \
+    else \
+    pip install --no-cache-dir -r requirements.txt ; \
+    fi
 
-# Copy dev requirements file
-COPY requirements-dev.txt .
+# Production image
+FROM python:3.11-slim AS output
 
-# Install dev requirements if DEV_BUILD is set
-ARG DEV_BUILD
-RUN if [ "$DEV_BUILD" = "true" ] ; then pip install --no-cache-dir -r requirements-dev.txt ; fi
+ARG DEV=0
 
-# Build image
-FROM base AS build
+# Create and activate virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install app dependencies from the initial venv
+COPY --from=base /opt/venv /opt/venv
+
+WORKDIR /app
 
 # Copy app code
 COPY . .
 
-# Set environment variable
-ENV APP_MODULE=main:app
-
 # Build app
-RUN python -m compileall .
-
-# Production image
-FROM base AS prod
-
-# Copy compiled app code
-COPY --from=build /app .
+RUN if [ "$DEV" != "1" ] ; then python -m compileall . ; fi
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
-# Run app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD if [ "$ENV" = "dev" ] ; then \
+    uvicorn app.main:app --host 0.0.0.0 --reload ; \
+    else \
+    uvicorn app.main:app --host 0.0.0.0 ; \
+    fi
