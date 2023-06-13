@@ -1,3 +1,11 @@
 openai
 langchain
 fastapi
+fastapi-users[sqlalchemy,oauth]
+uvicorn
+sqlalchemy[asyncio]
+websockets
+pydantic
+asyncpg
+orjson
+alembic

@@ -12,7 +12,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/mydatabase
+      DATABASE_URL: postgresql+asyncpg://polyglot:mysecretpassword@db:5432/polyglot
       UVICORN_PORT: 8080
       ENV: dev
     env_file:
@@ -23,9 +23,9 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: langtutor
+      POSTGRES_USER: polyglot
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: polyglot
     volumes:
       - db-data:/var/lib/postgresql/data
 

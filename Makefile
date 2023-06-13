@@ -30,12 +30,6 @@ show_version:
 setup: # setup local development environment
 	pip install pip-tools
 
-test: # run tests
-	docker-compose up -d database
-	sleep 2
-	gotest -v ./...
-	docker-compose down -v
-
 deploy: # Deploy the app through Helm
 	DOCKER_REGISTRY=${DOCKER_REGISTRY} \
 	COMMIT_SHA=${COMMIT_SHA} \
@@ -60,9 +54,9 @@ push_migration_image: do_registry_login
 	docker push ${DOCKER_REGISTRY}/${MIGRATION_IMAGE_NAME}:${COMMIT_SHA}
 
 migrate:
-	docker-compose up -d database
-	sleep 2 # wait for database to be ready, TODO: find a way to make this deterministic
-	migrate -path db/migrations/ -database "postgres://rental:rental@localhost:5432/rental?sslmode=disable" up
+	docker compose up -d db
+	sleep 2 # wait for db to start, TODO: use wait-for-it.sh
+	docker-compose run --rm web alembic upgrade head
 
 migrate_prod:
 	kubectl run migration -it --restart=Never --image ${DOCKER_REGISTRY}/${MIGRATION_IMAGE_NAME}:${COMMIT_SHA} --rm -- -database "${DATABASE_URL}" up
@@ -82,5 +76,8 @@ build_local:
 
 run: build_local
 	docker-compose run --service-ports web
+
+test: build_local
+	docker-compose run web pytest
 
 all: build_image build_migration_image push_image push_migration_image
