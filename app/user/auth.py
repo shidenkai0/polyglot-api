@@ -1,6 +1,6 @@
 import os
 import uuid
-from typing import Optional, AsyncGenerator
+from typing import Annotated, AsyncGenerator, Optional
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
@@ -12,8 +12,8 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.google import GoogleOAuth2
 
-from app.user.models import User, get_user_db
 from app.config import settings
+from app.user.models import User, get_user_db
 
 google_oauth_client = GoogleOAuth2(
     client_id=settings.GOOGLE_OAUTH_CLIENT_ID,
@@ -37,7 +37,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
 
-async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)) -> AsyncGenerator[UserManager, None]:
+async def get_user_manager(
+    user_db: Annotated[SQLAlchemyUserDatabase, Depends(get_user_db)]
+) -> AsyncGenerator[UserManager, None]:
     yield UserManager(user_db)
 
 
@@ -45,6 +47,7 @@ bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
+    # We may want to use RS256 instead of HS256 in production
     return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
 
 

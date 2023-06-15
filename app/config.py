@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     GOOGLE_OAUTH_CLIENT_SECRET: str
     APP_SECRET: str
     ENV: Env = Env.DEV
+    PROJECT_NAME: str = "Polyglot"
 
     @property
     def show_docs(self):

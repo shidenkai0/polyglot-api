@@ -77,7 +77,10 @@ build_local:
 run: build_local
 	docker-compose run --service-ports web
 
-test: build_local
-	docker-compose run web pytest
+test: build_local migrate
+	docker-compose run --rm web pytest
+
+cleanup:
+	docker-compose down -v --remove-orphans
 
 all: build_image build_migration_image push_image push_migration_image
