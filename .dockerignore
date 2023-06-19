@@ -1,2 +1,8 @@
 lab
 .env
+.venv
+.idea
+.vscode
+*.pyc
+*.ipynb
+__pycache__

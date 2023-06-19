@@ -61,6 +61,3 @@ async def async_session(async_engine: AsyncEngine) -> AsyncSession:
     async_session = async_sessionmaker(async_engine, autocommit=False, autoflush=False, expire_on_commit=False)
     async with async_session() as session:
         yield session
-
-
-# TODO: We may want to yield the sessionmaker instead of the session, so that we can create multiple sessions.

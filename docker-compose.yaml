@@ -26,6 +26,8 @@ services:
       POSTGRES_USER: polyglot
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: polyglot
+    ports:
+      - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
 

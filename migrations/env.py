@@ -1,15 +1,16 @@
 import asyncio
-
 from logging.config import fileConfig
-from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.config import settings
 from app.database import Base
 
 # Import all models here
-from app.user.models import User, OAuthAccount  # noqa
+from app.user.models import User, OAuthAccount  # noqa isort:skip
+from app.chat.models import ChatSession  # noqa isort:skip
+from app.tutor.models import Tutor  # noqa isort:skip
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

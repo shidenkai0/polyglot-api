@@ -28,6 +28,7 @@ show_version:
 	@echo ${COMMIT_SHA}
 
 setup: # setup local development environment
+	python3.11 -m venv .venv
 	pip install pip-tools
 
 deploy: # Deploy the app through Helm
@@ -61,6 +62,9 @@ migrate:
 migrate_prod:
 	kubectl run migration -it --restart=Never --image ${DOCKER_REGISTRY}/${MIGRATION_IMAGE_NAME}:${COMMIT_SHA} --rm -- -database "${DATABASE_URL}" up
 
+generate_migration:
+	docker compose run web alembic revision --autogenerate -m "${desc}"
+
 update_requirements:
 	pip-compile requirements.in
 	pip-compile requirements-dev.in
@@ -78,7 +82,7 @@ run: build_local
 	docker-compose run --service-ports web
 
 test: build_local migrate
-	docker-compose run --rm web pytest
+	docker-compose run --rm web pytest -vv
 
 cleanup:
 	docker-compose down -v --remove-orphans

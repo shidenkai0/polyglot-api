@@ -1,11 +1,16 @@
-from typing import Annotated, List, AsyncGenerator
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase, SQLAlchemyBaseOAuthAccountTableUUID
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship, Mapped
-from fastapi import Depends
+from typing import Annotated, AsyncGenerator, List
 
-from app.database import Base
-from app.database import get_session
+from fastapi import Depends
+from fastapi_users.db import (
+    SQLAlchemyBaseOAuthAccountTableUUID,
+    SQLAlchemyBaseUserTableUUID,
+    SQLAlchemyUserDatabase,
+)
+from sqlalchemy import String
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.database import Base, get_session
 
 
 class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
@@ -14,6 +19,10 @@ class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
     oauth_accounts: Mapped[List[OAuthAccount]] = relationship("OAuthAccount", lazy="joined")
+    chat_sessions: Mapped[List["ChatSession"]] = relationship("ChatSession", lazy="joined", back_populates="user")
+    first_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    locale: Mapped[str] = mapped_column(String(10), nullable=False, default="en_US")
 
 
 async def get_user_db(

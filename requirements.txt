@@ -78,9 +78,9 @@ idna==3.4
     #   requests
     #   rfc3986
     #   yarl
-langchain==0.0.198
+langchain==0.0.202
     # via -r requirements.in
-langchainplus-sdk==0.0.8
+langchainplus-sdk==0.0.10
     # via langchain
 makefun==1.15.1
     # via fastapi-users

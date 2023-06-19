@@ -41,6 +41,9 @@ async def test_user(user_manager: UserManager) -> User:
     user = await user_manager.create(
         UserCreate(
             email="test@example.com",
+            first_name="Momo",
+            last_name="Test",
+            locale="en_US",
             password="password",
             is_active=True,
             is_verified=True,

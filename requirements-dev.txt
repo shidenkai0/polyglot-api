@@ -28,7 +28,7 @@ executing==1.2.0
     # via stack-data
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.23.1
+ipykernel==6.23.2
     # via -r requirements-dev.in
 ipython==8.14.0
     # via ipykernel
@@ -38,7 +38,7 @@ jedi==0.18.2
     # via ipython
 jupyter-client==8.2.0
     # via ipykernel
-jupyter-core==5.3.0
+jupyter-core==5.3.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -80,6 +80,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
+pydocstyle==6.3.0
+    # via -r requirements-dev.in
 pygments==2.15.1
     # via ipython
 pytest==7.3.2
@@ -98,6 +100,8 @@ pyzmq==25.1.0
     #   jupyter-client
 six==1.16.0
     # via python-dateutil
+snowballstemmer==2.2.0
+    # via pydocstyle
 stack-data==0.6.2
     # via ipython
 tornado==6.3.2

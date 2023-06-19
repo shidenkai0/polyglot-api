@@ -1,4 +1,3 @@
-import os
 import uuid
 from typing import Annotated, AsyncGenerator, Optional
 
@@ -48,7 +47,7 @@ bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 def get_jwt_strategy() -> JWTStrategy:
     # We may want to use RS256 instead of HS256 in production
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+    return JWTStrategy(secret=SECRET, lifetime_seconds=3600, token_audience=[f"{settings.PROJECT_NAME}:auth"])
 
 
 auth_backend = AuthenticationBackend(
