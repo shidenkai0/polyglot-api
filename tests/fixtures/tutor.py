@@ -10,4 +10,4 @@ async def test_tutor(async_session: AsyncSession) -> Tutor:
     tutor = Tutor(name="Tutor", model=ModelName.GPT3_5_TURBO.value)
     async_session.add(tutor)
     await async_session.commit()
-    return tutor
+    yield tutor

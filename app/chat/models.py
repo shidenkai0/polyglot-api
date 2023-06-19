@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base, get_session
+from app.database import Base, async_session
 from app.tutor.models import Tutor
 from app.user.models import User
 from app.utils import get_chat_response
@@ -80,14 +80,14 @@ class ChatSession(Base):
         Returns:
             ChatSession: The newly created ChatSession object.
         """
-        async for session in get_session():
-            chat_session = cls(
-                user_id=user_id,
-                tutor_id=tutor_id,
-                max_tokens=max_tokens,
-                max_messages=max_messages,
-                message_history=message_history,
-            )
+        chat_session = cls(
+            user_id=user_id,
+            tutor_id=tutor_id,
+            max_tokens=max_tokens,
+            max_messages=max_messages,
+            message_history=message_history,
+        )
+        async with async_session() as session:
             session.add(chat_session)
             if commit:
                 await session.commit()

@@ -1,6 +1,8 @@
 import uuid
+from unittest import mock
 
 import asyncpg
+import pytest
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.engine.url import make_url
@@ -61,3 +63,10 @@ async def async_session(async_engine: AsyncEngine) -> AsyncSession:
     async_session = async_sessionmaker(async_engine, autocommit=False, autoflush=False, expire_on_commit=False)
     async with async_session() as session:
         yield session
+
+
+@pytest.fixture(autouse=True)
+def _patch_async_session(async_session: AsyncSession):
+    """Patch app. to return the async_session fixture"""
+    with mock.patch("app.database._async_session", lambda: async_session):
+        yield

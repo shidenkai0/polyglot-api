@@ -12,9 +12,8 @@ from app.user.models import OAuthAccount, User
 from app.user.schemas import UserCreate
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def test_app(async_session: AsyncSession):
-    app.dependency_overrides[get_session] = lambda: async_session
     yield app
 
 

@@ -7,7 +7,13 @@ from sqlalchemy.orm import declarative_base
 from app.config import settings
 
 engine = create_async_engine(settings.DATABASE_URL, pool_size=settings.POOL_SIZE, max_overflow=settings.MAX_OVERFLOW)
-async_session = async_sessionmaker(engine, expire_on_commit=False)
+
+_async_session = async_sessionmaker(engine, expire_on_commit=False)
+
+
+def async_session() -> AsyncSession:
+    return _async_session()
+
 
 POSTGRES_INDEXES_NAMING_CONVENTION = {
     "ix": "%(column_0_label)s_idx",
@@ -24,6 +30,7 @@ Base = declarative_base(metadata=metadata)
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Return an asynchronous generator that yields a new SQLAlchemy async session object for each iteration.
+    Used as a dependency in FastAPI endpoints.
 
     Yields:
         AsyncSession: A new SQLAlchemy session object.
