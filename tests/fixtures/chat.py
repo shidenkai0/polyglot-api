@@ -15,7 +15,7 @@ async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -
         user_id=test_user.id,
         tutor_id=test_tutor.id,
         message_history=message_history,
-        max_tokens=20,
+        max_tokens=10,
         max_messages=10,
     )
     yield chat_session

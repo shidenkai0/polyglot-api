@@ -1,13 +1,8 @@
 from fastapi import APIRouter
-from app.user.models import User
-from app.user.schemas import UserCreate, UserRead, UserUpdate
+
 from app.config import settings
-from app.user.auth import (
-    auth_backend,
-    current_active_user,
-    fastapi_users,
-    google_oauth_client,
-)
+from app.user.auth import auth_backend, fastapi_users, google_oauth_client
+from app.user.schemas import UserCreate, UserRead, UserUpdate
 
 router = APIRouter(
     responses={404: {"description": "Not found"}},

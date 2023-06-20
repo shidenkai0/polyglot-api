@@ -1,19 +1,19 @@
 import uuid
 from typing import List, Optional
 
-from sqlalchemy import UUID, ForeignKey, Integer
+from sqlalchemy import UUID, ForeignKey, Integer, select, text
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base, async_session
+from app.database import Base, ListPydanticType, async_session
 from app.tutor.models import Tutor
 from app.user.models import User
 from app.utils import get_chat_response
 
-from .schemas import Message, MessageRole
+from .schemas import ChatSessionCreate, MessageWrite, OpenAIMessage, OpenAIMessageRole
 
-DEFAULT_MAX_TOKENS = 200
+DEFAULT_MAX_TOKENS = 50
 DEFAULT_MAX_MESSAGES = 100
 
 
@@ -40,8 +40,10 @@ class ChatSession(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(User.id), nullable=False)
-    user: Mapped[User] = relationship("User", lazy="joined", back_populates="chat_sessions")
-    message_history: Mapped[List[Message]] = mapped_column(MutableList.as_mutable(JSONB), nullable=False, default=[])
+    user: Mapped[User] = relationship("User", lazy="joined")
+    message_history: Mapped[List[OpenAIMessage]] = mapped_column(
+        ListPydanticType(OpenAIMessage), nullable=False, server_default=text("'[]'::jsonb"), default=[]
+    )
     max_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=DEFAULT_MAX_TOKENS)
     max_messages: Mapped[int] = mapped_column(Integer, nullable=False, default=DEFAULT_MAX_MESSAGES)
     tutor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tutor.id"), nullable=False)
@@ -59,11 +61,36 @@ class ChatSession(Base):
     @classmethod
     async def create(
         cls,
-        user_id: uuid.UUID,
-        tutor_id: uuid.UUID,
+        chat_session_create: ChatSessionCreate,
+        commit: bool = True,
+    ) -> "ChatSession":
+        """
+        Create a new ChatSession object.
+
+        Args:
+            chat_session_create (ChatSessionCreate): The data for the chat session to be created.
+            commit (bool, optional): Whether to commit the new chat session to the database. Defaults to True.
+
+        Returns:
+            ChatSession: The newly created ChatSession object.
+        """
+
+        chat_session = cls(**chat_session_create.dict())
+        async with async_session() as session:
+            session.add(chat_session)
+            if commit:
+                await session.commit()
+                await session.refresh(chat_session)
+        return chat_session
+
+    @classmethod
+    async def create(
+        cls,
+        user_id: Optional[uuid.UUID] = None,
+        tutor_id: Optional[uuid.UUID] = None,
         max_tokens: Optional[int] = DEFAULT_MAX_TOKENS,
         max_messages: Optional[int] = DEFAULT_MAX_MESSAGES,
-        message_history: Optional[List[Message]] = [],
+        message_history: Optional[List[OpenAIMessage]] = [],
         commit: bool = True,
     ) -> "ChatSession":
         """
@@ -80,6 +107,9 @@ class ChatSession(Base):
         Returns:
             ChatSession: The newly created ChatSession object.
         """
+
+        if len(message_history) > max_messages:
+            raise MessageHistoryTooLongError(f"Message history is too long. Max messages is {max_messages}.")
         chat_session = cls(
             user_id=user_id,
             tutor_id=tutor_id,
@@ -88,27 +118,77 @@ class ChatSession(Base):
             message_history=message_history,
         )
         async with async_session() as session:
-            session.add(chat_session)
             if commit:
+                session.add(chat_session)
                 await session.commit()
                 await session.refresh(chat_session)
             return chat_session
 
-    async def get_response(self, user_input: str, commit: bool = False) -> str:
+    @classmethod
+    async def get(cls, chat_session_id: uuid.UUID) -> Optional["ChatSession"]:
+        """
+        Get a chat session by its unique identifier.
+
+        Args:
+            chat_session_id (uuid.UUID): The unique identifier for the chat session.
+
+        Returns:
+            ChatSession: The chat session with the given unique identifier.
+
+        Raises:
+            ChatSessionNotFoundError: Raised if no chat session with the given unique identifier exists.
+        """
+        async with async_session() as session:
+            chat_session = await session.get(cls, chat_session_id)
+        return chat_session
+
+    @classmethod
+    async def get_by_user_id(cls, user_id: uuid.UUID) -> List["ChatSession"]:
+        """
+        Get chat sessions by the user's unique identifier.
+        """
+        query = select(cls).where(cls.user_id == user_id)
+        async with async_session() as session:
+            result = await session.execute(query)
+            return result.scalars().unique().all()  # TODO: check how this performs over time
+
+    @classmethod
+    async def get_by_id_user_id(cls, chat_session_id: uuid.UUID, user_id: uuid.UUID) -> Optional["ChatSession"]:
+        """
+        Get a chat session by its unique identifier and the user's unique identifier.
+
+        Args:
+            chat_session_id (uuid.UUID): The unique identifier for the chat session.
+            user_id (uuid.UUID): The unique identifier for the user.
+
+        Returns:
+            ChatSession: The chat session with the given unique identifier and user's unique identifier.
+
+        Raises:
+            ChatSessionNotFoundError: Raised if no chat session with the given unique identifier and user's unique identifier exists.
+        """
+        async with async_session() as session:
+            chat_session = await session.get(cls, chat_session_id)
+        if not chat_session or chat_session.user_id != user_id:
+            return None
+        return chat_session
+
+    async def get_response(self, message: MessageWrite, commit: bool = False) -> str:
         """
         Get a response from the AI tutor to the user's message.
 
         Args:
-            user_input (str): The user's input.
+            message (MessageWrite): The user's message.
+            commit (bool, optional): Whether to commit the new message to the database. Defaults to False.
 
         Returns:
             str: The tutor's response to the user's message.
         """
-        system_message = Message(
-            role=MessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.first_name)
+        system_message = OpenAIMessage(
+            role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.first_name)
         )
 
-        user_message = Message(role=MessageRole.USER, content=user_input, name=self.user.first_name)
+        user_message = OpenAIMessage(role=OpenAIMessageRole.USER, content=message.content, name=self.user.first_name)
         messages = [system_message] + self.message_history + [user_message]
         if len(messages) > self.max_messages:
             raise MessageHistoryTooLongError(f"Message history is too long. Max messages is {self.max_messages}.")
@@ -117,23 +197,32 @@ class ChatSession(Base):
         )
 
         self.message_history.extend([user_message, ai_message])
-
+        if commit:
+            async with async_session() as session:
+                session.add(self)
+                await session.commit()
         return ai_message.content
 
-    async def get_conversation_opener(self) -> Optional[str]:
+    async def get_conversation_opener(self, commit: bool = False) -> Optional[str]:
         """
         Get a conversation opener from the AI tutor.
+
+        Args:
+            commit (bool, optional): Whether to commit the new message to the database. Defaults to False.
 
         Returns:
             Optional[str]: The tutor's conversation opener.
         """
-        system_message = Message(
-            role=MessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.first_name)
+        system_message = OpenAIMessage(
+            role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.first_name)
         )
 
         ai_message = await get_chat_response(
             model=self.tutor.model, messages=[system_message], max_tokens=DEFAULT_MAX_TOKENS, temperature=0.2
         )
-
         self.message_history.append(ai_message)
+        if commit:
+            async with async_session() as session:
+                session.add(self)
+                await session.commit()
         return ai_message.content

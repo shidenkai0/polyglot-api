@@ -1,7 +1,8 @@
 import uuid
 from enum import Enum
+from typing import List
 
-from sqlalchemy import Boolean, String
+from sqlalchemy import Boolean, String, select
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -52,7 +53,12 @@ class Tutor(Base):
 
     @classmethod
     async def create(
-        cls, name: str, language: str, visible: bool = True, model: ModelName = ModelName.GPT3_5_TURBO
+        cls,
+        name: str,
+        language: str,
+        visible: bool = True,
+        model: ModelName = ModelName.GPT3_5_TURBO,
+        commit: bool = True,
     ) -> "Tutor":
         """
         Create a new Tutor object.
@@ -61,16 +67,47 @@ class Tutor(Base):
             name (str): The name of the tutor.
             language (str): The language of the tutor.
             visible (bool): Whether the tutor is visible to users.
+            model (ModelName): The model to use for the tutor.
+            commit (bool): Whether to commit the new Tutor object to the database.
 
         Returns:
             Tutor: The newly created Tutor object.
         """
+        tutor = cls(name=name, language=language, visible=visible, model=model)
         async with async_session() as session:
-            tutor = cls(name=name, language=language, visible=visible, model=model)
-            session.add(tutor)
-            await session.commit()
-            await session.refresh(tutor)
+            if commit:
+                session.add(tutor)
+                await session.commit()
+                await session.refresh(tutor)
             return tutor
+
+    @classmethod
+    async def get(cls, id: uuid.UUID) -> "Tutor":
+        """
+        Get a Tutor object by id.
+
+        Args:
+            id (uuid.UUID): The id of the Tutor object.
+
+        Returns:
+            Tutor: The Tutor object.
+        """
+        async with async_session() as session:
+            tutor = await session.get(cls, id)
+            return tutor
+
+    @classmethod
+    async def get_visible(cls) -> List["Tutor"]:
+        """
+        Get a list of visible Tutor objects.
+
+        Returns:
+            List[Tutor]: A list of visible Tutor objects.
+        """
+        query = select(cls).where(cls.visible == True)
+        async with async_session() as session:
+            result = await session.execute(query)
+            return result.scalars().all()
 
     def get_system_prompt(self, student_name: str) -> str:
         """

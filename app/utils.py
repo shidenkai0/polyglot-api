@@ -2,10 +2,10 @@ from typing import List
 
 from openai import ChatCompletion
 
-from app.chat.schemas import Message
+from app.chat.schemas import OpenAIMessage
 
 
-async def get_chat_response(model: str, messages: List[Message], **kwargs) -> Message:
+async def get_chat_response(model: str, messages: List[OpenAIMessage], **kwargs) -> OpenAIMessage:
     """
     Send a list of messages to the OpenAI Chat Completion API and return the response.
 
@@ -23,5 +23,5 @@ async def get_chat_response(model: str, messages: List[Message], **kwargs) -> Me
         messages=message_dicts,
         **kwargs,
     )
-    ai_message = Message.parse_obj(response.choices[0].message)
+    ai_message = OpenAIMessage.parse_obj(response.choices[0].message)
     return ai_message
