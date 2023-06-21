@@ -3,6 +3,8 @@ import pytest
 
 from app.chat.models import ChatSession
 from app.chat.router import CHAT_SESSION_NOT_FOUND
+from app.chat.schemas import MessageRole
+from app.tutor.models import Tutor
 
 
 @pytest.mark.asyncio
@@ -41,21 +43,19 @@ async def test_get_chat_session_not_found(authenticated_client: httpx.AsyncClien
 
 
 @pytest.mark.asyncio
+@pytest.mark.keep_it_short
 async def test_start_chat_session(authenticated_client: httpx.AsyncClient, test_user, test_tutor):
     """Test starting a new chat session."""
     response = await authenticated_client.get(f"/chat?tutor_id={test_tutor.id}")
     assert response.status_code == 200
-    chat_session = await ChatSession.get(response.json()["id"])
-    assert chat_session.user_id == test_user.id
-    assert chat_session.tutor_id == test_tutor.id
-    opener = await chat_session.get_conversation_opener()
-    assert opener == test_user
-    assert response.json() == {
-        "id": str(chat_session.id),
-        "user_id": str(test_user.id),
-        "tutor_id": str(test_tutor.id),
-        "message_history": [],
-    }
+    chat_session: ChatSession = await ChatSession.get(response.json()["id"])
+    assert chat_session is not None
+    assert response.json().keys() == {"id", "user_id", "tutor_id", "message_history"}
+    assert response.json()["user_id"] == str(test_user.id)
+    assert response.json()["tutor_id"] == str(test_tutor.id)
+    assert len(response.json()["message_history"]) == 1
+    assert response.json()["message_history"][0]["role"] == MessageRole.TUTOR
+    assert response.json()["message_history"][0]["content"] == chat_session.message_history[0].content
 
 
 @pytest.mark.asyncio
@@ -69,5 +69,6 @@ async def test_start_chat_session_tutor_not_found(authenticated_client: httpx.As
 @pytest.mark.asyncio
 async def test_start_chat_session_tutor_not_visible(authenticated_client: httpx.AsyncClient, test_tutor):
     """Test starting a new chat session with a tutor that is not visible."""
+    await test_tutor.update(visible=False)
     response = await authenticated_client.get(f"/chat?tutor_id={test_tutor.id}")
     assert response.status_code == 404

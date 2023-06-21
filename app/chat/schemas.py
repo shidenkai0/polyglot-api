@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import StrEnum
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, root_validator, validator
 
 
-class OpenAIMessageRole(str, Enum):
+class OpenAIMessageRole(StrEnum):
     """Role of a message in an OpenAI chat session."""
 
     SYSTEM = "system"
@@ -41,7 +41,7 @@ class OpenAIMessage(BaseModel):
     function_call: Optional[dict] = None
 
 
-class MessageRole(Enum):
+class MessageRole(StrEnum):
     """Role of a message in a language tutoring session."""
 
     TUTOR = "tutor"
@@ -52,22 +52,30 @@ class MessageBase(BaseModel):
     content: str = ""
 
 
+internal_to_external_role = {
+    OpenAIMessageRole.ASSISTANT: MessageRole.TUTOR,
+    OpenAIMessageRole.USER: MessageRole.USER,
+}
+
+
 class MessageRead(MessageBase):
-    """
-    A message as returned by the Polyglot API.
-
-    Attributes:
-    -----------
-    role : ReadMessageRole
-        The role of the message in the chat session.
-    content : str
-        The content of the message.
-    """
-
     role: MessageRole
 
     class Config:
         use_enum_values = True
+
+    @classmethod
+    def from_openai_message(cls, openai_message: OpenAIMessage) -> "MessageRead":
+        """
+        Convert an OpenAI message to a message for the language tutoring session.
+
+        Args:
+            openai_message (OpenAIMessage): The OpenAI message.
+
+        Returns:
+            MessageRead: The message for the language tutoring session.
+        """
+        return cls(role=internal_to_external_role[openai_message.role], content=openai_message.content)
 
 
 class MessageWrite(MessageBase):
@@ -91,9 +99,6 @@ class ChatSessionBase(BaseModel):
 class ChatSessionRead(ChatSessionBase):
     id: UUID
     message_history: List[MessageRead]
-
-    class Config:
-        orm_mode = True
 
 
 class ChatSessionCreate(ChatSessionBase):

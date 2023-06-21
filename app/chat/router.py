@@ -26,7 +26,15 @@ async def get_chat_sessions(user: ActiveVerifiedUser) -> List[ChatSessionRead]:
     Get all chat sessions for the current user.
     """
     chat_sessions = await ChatSession.get_by_user_id(user_id=user.id)
-    return [ChatSessionRead.from_orm(chat_session) for chat_session in chat_sessions]
+    return [
+        ChatSessionRead(
+            id=chat_session.id,
+            user_id=chat_session.user_id,
+            tutor_id=chat_session.tutor_id,
+            message_history=[MessageRead.from_openai_message(message) for message in chat_session.message_history],
+        )
+        for chat_session in chat_sessions
+    ]
 
 
 @router.get("/chat/{chat_id}")
@@ -39,7 +47,12 @@ async def get_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> ChatSessi
         raise CHAT_SESSION_NOT_FOUND
     if chat_session.user_id != user.id:
         raise CHAT_SESSION_NOT_FOUND
-    return ChatSessionRead.from_orm(chat_session)
+    return ChatSessionRead(
+        id=chat_session.id,
+        user_id=chat_session.user_id,
+        tutor_id=chat_session.tutor_id,
+        message_history=[MessageRead.from_openai_message(message) for message in chat_session.message_history],
+    )
 
 
 @router.get("/chat")
@@ -53,8 +66,14 @@ async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSe
     if not tutor.visible:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor not found")
     chat_session = await ChatSession.create(user_id=user.id, tutor_id=tutor.id)
-    opener = await chat_session.get_conversation_opener(commit=True)
-    return ChatSessionRead.from_orm(chat_session)
+    await chat_session.get_conversation_opener(commit=True)
+
+    return ChatSessionRead(
+        id=chat_session.id,
+        user_id=chat_session.user_id,
+        tutor_id=chat_session.tutor_id,
+        message_history=[MessageRead.from_openai_message(message) for message in chat_session.message_history],
+    )
 
 
 @router.post("/chat/{chat_id}/message")
@@ -70,6 +89,6 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
         commit=True,
     )
     return MessageRead(
-        role=MessageRole.TUTOR,
+        mrole=MessageRole.TUTOR,
         content=response,
     )

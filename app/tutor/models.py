@@ -1,6 +1,6 @@
 import uuid
-from enum import Enum
-from typing import List
+from enum import StrEnum
+from typing import List, Optional
 
 from sqlalchemy import Boolean, String, select
 from sqlalchemy.dialects.postgresql import UUID
@@ -15,7 +15,7 @@ You hold conversations with the student about various topics, to help them impro
 """
 
 
-class ModelName(str, Enum):
+class ModelName(StrEnum):
     GPT4 = "gpt-4-0613"
     GPT3_5_TURBO = "gpt-3.5-turbo-0613"
 
@@ -80,6 +80,27 @@ class Tutor(Base):
                 await session.commit()
                 await session.refresh(tutor)
             return tutor
+
+    async def update(self, name: Optional[str] = None, language: Optional[str] = None, visible: Optional[bool] = None):
+        """
+        Update the Tutor object.
+
+        Args:
+            name (Optional[str]): The name of the tutor.
+            language (Optional[str]): The language of the tutor.
+            visible (Optional[bool]): Whether the tutor is visible to users.
+        """
+        if name:
+            self.name = name
+        if language:
+            self.language = language
+        if visible is not None:
+            self.visible = visible
+
+        async with async_session() as session:
+            session.add(self)
+            await session.commit()
+            await session.refresh(self)
 
     @classmethod
     async def get(cls, id: uuid.UUID) -> "Tutor":

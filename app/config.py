@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
 import openai
 from pydantic import BaseSettings, PostgresDsn
 
 
-class Env(str, Enum):
+class Env(StrEnum):
     DEV = "dev"
     TEST = "test"
     PROD = "prod"

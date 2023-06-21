@@ -2,18 +2,16 @@ import uuid
 from typing import List, Optional
 
 from sqlalchemy import UUID, ForeignKey, Integer, select, text
-from sqlalchemy.dialects.postgresql.json import JSONB
-from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.chat.utils import get_chat_response
 from app.database import Base, ListPydanticType, async_session
 from app.tutor.models import Tutor
 from app.user.models import User
-from app.utils import get_chat_response
 
-from .schemas import ChatSessionCreate, MessageWrite, OpenAIMessage, OpenAIMessageRole
+from .schemas import MessageWrite, OpenAIMessage, OpenAIMessageRole
 
-DEFAULT_MAX_TOKENS = 50
+DEFAULT_MAX_TOKENS = 100
 DEFAULT_MAX_MESSAGES = 100
 
 
@@ -57,31 +55,6 @@ class ChatSession(Base):
             str: A string representation of the ChatSession object.
         """
         return f"<ChatSession {self.id} user_id={self.user} tutor_id={self.tutor_id}> message_history={self.message_history}>"
-
-    @classmethod
-    async def create(
-        cls,
-        chat_session_create: ChatSessionCreate,
-        commit: bool = True,
-    ) -> "ChatSession":
-        """
-        Create a new ChatSession object.
-
-        Args:
-            chat_session_create (ChatSessionCreate): The data for the chat session to be created.
-            commit (bool, optional): Whether to commit the new chat session to the database. Defaults to True.
-
-        Returns:
-            ChatSession: The newly created ChatSession object.
-        """
-
-        chat_session = cls(**chat_session_create.dict())
-        async with async_session() as session:
-            session.add(chat_session)
-            if commit:
-                await session.commit()
-                await session.refresh(chat_session)
-        return chat_session
 
     @classmethod
     async def create(
@@ -196,7 +169,7 @@ class ChatSession(Base):
             model=self.tutor.model, messages=messages, max_tokens=self.max_tokens, temperature=0.2
         )
 
-        self.message_history.extend([user_message, ai_message])
+        self.message_history = self.message_history + [user_message, ai_message]  # Always use copy-on-write
         if commit:
             async with async_session() as session:
                 session.add(self)
@@ -220,7 +193,7 @@ class ChatSession(Base):
         ai_message = await get_chat_response(
             model=self.tutor.model, messages=[system_message], max_tokens=DEFAULT_MAX_TOKENS, temperature=0.2
         )
-        self.message_history.append(ai_message)
+        self.message_history = self.message_history + [ai_message]  # Always use copy-on-write
         if commit:
             async with async_session() as session:
                 session.add(self)
