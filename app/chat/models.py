@@ -5,7 +5,7 @@ from sqlalchemy import UUID, ForeignKey, Integer, select, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.chat.utils import get_chat_response
-from app.database import Base, ListPydanticType, async_session
+from app.database import Base, ListPydanticType, TimestampMixin, async_session
 from app.tutor.models import Tutor
 from app.user.models import User
 
@@ -21,7 +21,7 @@ class MessageHistoryTooLongError(Exception):
     pass
 
 
-class ChatSession(Base):
+class ChatSession(Base, TimestampMixin):
     """
     Represents a chat session between a user and an AI tutor.
 

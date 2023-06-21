@@ -1,13 +1,14 @@
 import json
+from datetime import datetime
 from typing import AsyncGenerator, List
 
 import sqlalchemy as sa
 from pydantic import parse_obj_as
 from pydantic.json import pydantic_encoder
-from sqlalchemy import MetaData
+from sqlalchemy import DateTime, MetaData
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
 from app.config import settings
 
@@ -40,6 +41,13 @@ POSTGRES_INDEXES_NAMING_CONVENTION = {
 metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
 
 Base = declarative_base(metadata=metadata)
+
+
+class TimestampMixin:
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=sa.func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()
+    )
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

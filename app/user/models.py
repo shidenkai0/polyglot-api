@@ -10,14 +10,14 @@ from sqlalchemy import String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base, get_session
+from app.database import Base, TimestampMixin, get_session
 
 
 class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
     pass
 
 
-class User(SQLAlchemyBaseUserTableUUID, Base):
+class User(SQLAlchemyBaseUserTableUUID, Base, TimestampMixin):
     oauth_accounts: Mapped[List[OAuthAccount]] = relationship("OAuthAccount", lazy="joined")
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)

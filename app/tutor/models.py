@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, String, select
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database import Base, async_session
+from app.database import Base, TimestampMixin, async_session
 
 SYSTEM_TEMPLATE_STRING = """You are a friendly language tutor named {name} who can help a student named {student_name} improve their conversational skills in {language}.
 The student is a non-native speaker who is learning {language} as a second language.
@@ -20,7 +20,7 @@ class ModelName(StrEnum):
     GPT3_5_TURBO = "gpt-3.5-turbo-0613"
 
 
-class Tutor(Base):
+class Tutor(Base, TimestampMixin):
     """
     Represents an AI language tutor.
 
