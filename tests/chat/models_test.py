@@ -15,7 +15,7 @@ from app.user.models import User
 
 
 @pytest.mark.asyncio
-async def test_chat_session_create(async_session: AsyncSession, test_user: User, test_tutor: Tutor):
+async def test_chat_session_create(test_user: User, test_tutor: Tutor):
     """Test creating a new ChatSession object."""
     message_history = []
     chat_session = await ChatSession.create(
@@ -30,9 +30,7 @@ async def test_chat_session_create(async_session: AsyncSession, test_user: User,
 
 
 @pytest.mark.asyncio
-async def test_chat_session_create_too_long_message_history(
-    async_session: AsyncSession, test_user: User, test_tutor: Tutor
-):
+async def test_chat_session_create_too_long_message_history(test_user: User, test_tutor: Tutor):
     """Test creating a new ChatSession object with a message history that is too long."""
     message_history = [OpenAIMessage(role=OpenAIMessageRole.USER, text="Hello")] * 11
     with pytest.raises(MessageHistoryTooLongError):
@@ -46,14 +44,14 @@ async def test_chat_session_create_too_long_message_history(
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get(test_chat_session: ChatSession):
     """Test getting a ChatSession object."""
     chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is not None
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_excludes_soft_deleted(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get_excludes_soft_deleted(test_chat_session: ChatSession):
     """Test that get doesn't return soft-deleted ChatSession objects."""
     await ChatSession.delete(test_chat_session.id, soft=True)
     chat_session = await ChatSession.get(test_chat_session.id)
@@ -78,14 +76,14 @@ async def test_chat_session_soft_delete(async_session: AsyncSession, test_chat_s
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_not_found(async_session: AsyncSession):
+async def test_chat_session_get_not_found():
     """Test getting a ChatSession object that does not exist."""
     chat_session = await ChatSession.get(UUID(int=0))
     assert chat_session is None
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_by_user_id(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get_by_user_id(test_chat_session: ChatSession):
     """Test getting a list of ChatSession objects by user ID."""
     chat_sessions = await ChatSession.get_by_user_id(test_chat_session.user_id)
     assert chat_sessions is not None
@@ -96,9 +94,7 @@ async def test_chat_session_get_by_user_id(async_session: AsyncSession, test_cha
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_by_user_id_excludes_soft_deleted(
-    async_session: AsyncSession, test_chat_session: ChatSession
-):
+async def test_chat_session_get_by_user_id_excludes_soft_deleted(test_chat_session: ChatSession):
     """Test that get_by_user_id doesn't return soft-deleted ChatSession objects."""
     await ChatSession.delete(test_chat_session.id, soft=True)
     chat_sessions = await ChatSession.get_by_user_id(test_chat_session.user_id)
@@ -106,7 +102,7 @@ async def test_chat_session_get_by_user_id_excludes_soft_deleted(
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_by_id_user_id(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get_by_id_user_id(test_chat_session: ChatSession):
     """Test getting a ChatSession object by ID and user ID."""
     chat_session = await ChatSession.get_by_id_user_id(test_chat_session.id, test_chat_session.user_id)
     assert chat_session is not None
@@ -114,9 +110,7 @@ async def test_chat_session_get_by_id_user_id(async_session: AsyncSession, test_
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_by_id_user_id_excludes_soft_deleted(
-    async_session: AsyncSession, test_chat_session: ChatSession
-):
+async def test_chat_session_get_by_id_user_id_excludes_soft_deleted(test_chat_session: ChatSession):
     """Test that get_by_id_user_id doesn't return a soft-deleted ChatSession object."""
     await ChatSession.delete(test_chat_session.id, soft=True)
     chat_session = await ChatSession.get_by_id_user_id(test_chat_session.id, test_chat_session.user_id)
@@ -124,7 +118,7 @@ async def test_chat_session_get_by_id_user_id_excludes_soft_deleted(
 
 
 @pytest.mark.asyncio
-async def test_chat_session_get_by_id_user_id_not_found(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get_by_id_user_id_not_found(test_chat_session: ChatSession):
     """Test getting a ChatSession object by ID and user ID that does belong to the ChatSession."""
     chat_session = await ChatSession.get_by_id_user_id(test_chat_session.id, UUID(int=0))
     assert chat_session is None
@@ -132,7 +126,7 @@ async def test_chat_session_get_by_id_user_id_not_found(async_session: AsyncSess
 
 @pytest.mark.asyncio
 @pytest.mark.keep_it_short
-async def test_chat_session_get_response(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get_response(test_chat_session: ChatSession):
     """Test getting a response from an AI tutor."""
     user_message = MessageWrite(content="Hello")
     response = await test_chat_session.get_response(user_message, commit=True)
@@ -148,9 +142,7 @@ async def test_chat_session_get_response(async_session: AsyncSession, test_chat_
 
 @pytest.mark.asyncio
 @pytest.mark.keep_it_short
-async def test_chat_session_get_response_too_long_message_history(
-    async_session: AsyncSession, test_chat_session: ChatSession
-):
+async def test_chat_session_get_response_too_long_message_history(test_chat_session: ChatSession):
     """Test getting a response from an AI tutor with a message history that is too long."""
     test_chat_session.message_history = [
         OpenAIMessage(role=OpenAIMessageRole.USER, content="Hello")
@@ -162,7 +154,7 @@ async def test_chat_session_get_response_too_long_message_history(
 
 @pytest.mark.asyncio
 @pytest.mark.keep_it_short
-async def test_chat_session_get_conversation_opener(async_session: AsyncSession, test_chat_session: ChatSession):
+async def test_chat_session_get_conversation_opener(test_chat_session: ChatSession):
     """Test getting a conversation opener from an AI tutor."""
     response = await test_chat_session.get_conversation_opener(commit=True)
     assert response is not None

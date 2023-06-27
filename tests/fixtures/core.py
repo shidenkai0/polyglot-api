@@ -13,7 +13,7 @@ from app.user.schemas import UserCreate
 
 
 @pytest.fixture(autouse=True)
-def test_app(async_session: AsyncSession):
+def test_app() -> FastAPI:
     yield app
 
 
