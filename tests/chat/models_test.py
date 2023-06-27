@@ -53,11 +53,28 @@ async def test_chat_session_get(async_session: AsyncSession, test_chat_session: 
 
 
 @pytest.mark.asyncio
-async def test_chat_session_delete(async_session: AsyncSession, test_chat_session: ChatSession):
-    """Test deleting a ChatSession object."""
-    await ChatSession.delete(test_chat_session.id)
+async def test_chat_session_get_excludes_soft_deleted(async_session: AsyncSession, test_chat_session: ChatSession):
+    """Test that get doesn't return soft-deleted ChatSession objects."""
+    await ChatSession.delete(test_chat_session.id, soft=True)
     chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is None
+
+
+@pytest.mark.asyncio
+async def test_chat_session_delete(async_session: AsyncSession, test_chat_session: ChatSession):
+    """Test deleting a ChatSession object."""
+    await ChatSession.delete(test_chat_session.id, soft=False)
+    chat_session = await async_session.get(ChatSession, test_chat_session.id)
+    assert chat_session is None
+
+
+@pytest.mark.asyncio
+async def test_chat_session_soft_delete(async_session: AsyncSession, test_chat_session: ChatSession):
+    """Test soft deleting a ChatSession object."""
+    await ChatSession.delete(test_chat_session.id, soft=True)
+    chat_session = await async_session.get(ChatSession, test_chat_session.id)
+    assert chat_session is not None
+    assert chat_session.is_deleted
 
 
 @pytest.mark.asyncio
@@ -79,11 +96,31 @@ async def test_chat_session_get_by_user_id(async_session: AsyncSession, test_cha
 
 
 @pytest.mark.asyncio
+async def test_chat_session_get_by_user_id_excludes_soft_deleted(
+    async_session: AsyncSession, test_chat_session: ChatSession
+):
+    """Test that get_by_user_id doesn't return soft-deleted ChatSession objects."""
+    await ChatSession.delete(test_chat_session.id, soft=True)
+    chat_sessions = await ChatSession.get_by_user_id(test_chat_session.user_id)
+    assert all(not session.is_deleted for session in chat_sessions)
+
+
+@pytest.mark.asyncio
 async def test_chat_session_get_by_id_user_id(async_session: AsyncSession, test_chat_session: ChatSession):
     """Test getting a ChatSession object by ID and user ID."""
     chat_session = await ChatSession.get_by_id_user_id(test_chat_session.id, test_chat_session.user_id)
     assert chat_session is not None
     assert chat_session.id == test_chat_session.id
+
+
+@pytest.mark.asyncio
+async def test_chat_session_get_by_id_user_id_excludes_soft_deleted(
+    async_session: AsyncSession, test_chat_session: ChatSession
+):
+    """Test that get_by_id_user_id doesn't return a soft-deleted ChatSession object."""
+    await ChatSession.delete(test_chat_session.id, soft=True)
+    chat_session = await ChatSession.get_by_id_user_id(test_chat_session.id, test_chat_session.user_id)
+    assert chat_session is None
 
 
 @pytest.mark.asyncio

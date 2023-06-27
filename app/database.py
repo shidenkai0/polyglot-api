@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import datetime
 from typing import AsyncGenerator, List
 
@@ -48,6 +49,28 @@ class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()
     )
+
+
+class DeleteMixin:
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
+
+    @classmethod
+    async def delete(cls, id: uuid.UUID, soft: bool = True) -> None:
+        if soft:
+            query = sa.update(cls).where(cls.id == id).values(deleted_at=datetime.utcnow())
+        else:
+            query = sa.delete(cls).where(cls.id == id)
+        async with async_session() as session:
+            await session.execute(query)
+            await session.commit()
+
+    @classmethod
+    def default_query(cls):
+        return sa.select(cls).where(cls.deleted_at == None)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

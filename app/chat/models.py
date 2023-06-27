@@ -5,7 +5,13 @@ from sqlalchemy import UUID, ForeignKey, Integer, select, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.chat.utils import get_chat_response
-from app.database import Base, ListPydanticType, TimestampMixin, async_session
+from app.database import (
+    Base,
+    DeleteMixin,
+    ListPydanticType,
+    TimestampMixin,
+    async_session,
+)
 from app.tutor.models import Tutor
 from app.user.models import User
 
@@ -21,7 +27,7 @@ class MessageHistoryTooLongError(Exception):
     pass
 
 
-class ChatSession(Base, TimestampMixin):
+class ChatSession(Base, TimestampMixin, DeleteMixin):
     """
     Represents a chat session between a user and an AI tutor.
 
@@ -111,32 +117,17 @@ class ChatSession(Base, TimestampMixin):
         Raises:
             ChatSessionNotFoundError: Raised if no chat session with the given unique identifier exists.
         """
+        query = cls.default_query().where(cls.id == chat_session_id)
         async with async_session() as session:
-            chat_session = await session.get(cls, chat_session_id)
-        return chat_session
-
-    @classmethod
-    async def delete(cls, chat_session_id: uuid.UUID) -> None:
-        """
-        Delete a chat session by its unique identifier.
-
-        Args:
-            chat_session_id (uuid.UUID): The unique identifier for the chat session.
-
-        Raises:
-            ChatSessionNotFoundError: Raised if no chat session with the given unique identifier exists.
-        """
-        async with async_session() as session:
-            chat_session = await session.get(cls, chat_session_id)
-            await session.delete(chat_session)
-            await session.commit()
+            result = await session.execute(query)
+            return result.scalars().first()
 
     @classmethod
     async def get_by_user_id(cls, user_id: uuid.UUID) -> List["ChatSession"]:
         """
         Get chat sessions by the user's unique identifier.
         """
-        query = select(cls).where(cls.user_id == user_id)
+        query = cls.default_query().where(cls.user_id == user_id)
         async with async_session() as session:
             result = await session.execute(query)
             return result.scalars().unique().all()  # TODO: check how this performs over time
@@ -156,11 +147,10 @@ class ChatSession(Base, TimestampMixin):
         Raises:
             ChatSessionNotFoundError: Raised if no chat session with the given unique identifier and user's unique identifier exists.
         """
+        query = cls.default_query().where(cls.id == chat_session_id, cls.user_id == user_id)
         async with async_session() as session:
-            chat_session = await session.get(cls, chat_session_id)
-        if not chat_session or chat_session.user_id != user_id:
-            return None
-        return chat_session
+            result = await session.execute(query)
+            return result.scalars().first()
 
     async def get_response(self, message: MessageWrite, commit: bool = False) -> str:
         """
