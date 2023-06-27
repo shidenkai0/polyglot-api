@@ -6,3 +6,5 @@ pytest-asyncio
 black
 isort
 pydocstyle
+mypy
+pre-commit
