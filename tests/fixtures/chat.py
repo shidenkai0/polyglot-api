@@ -1,3 +1,4 @@
+from typing import AsyncGenerator
 from unittest.mock import patch
 
 import pytest
@@ -10,13 +11,13 @@ from app.user.models import User
 
 
 @pytest_asyncio.fixture
-async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -> ChatSession:
+async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -> AsyncGenerator[ChatSession, None]:
     """Create a new ChatSession object for testing."""
-    message_history = []
+
     chat_session = await ChatSession.create(
         user_id=test_user.id,
         tutor_id=test_tutor.id,
-        message_history=message_history,
+        message_history=[],
         max_tokens=10,
         max_messages=10,
     )

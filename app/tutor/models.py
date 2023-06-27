@@ -58,6 +58,7 @@ class Tutor(Base, TimestampMixin):
         language: str,
         visible: bool = True,
         model: ModelName = ModelName.GPT3_5_TURBO,
+        personality_prompt: str = "",
         commit: bool = True,
     ) -> "Tutor":
         """
@@ -73,7 +74,7 @@ class Tutor(Base, TimestampMixin):
         Returns:
             Tutor: The newly created Tutor object.
         """
-        tutor = cls(name=name, language=language, visible=visible, model=model)
+        tutor = cls(name=name, language=language, visible=visible, model=model, personality_prompt=personality_prompt)
         async with async_session() as session:
             if commit:
                 session.add(tutor)
@@ -81,7 +82,13 @@ class Tutor(Base, TimestampMixin):
                 await session.refresh(tutor)
             return tutor
 
-    async def update(self, name: Optional[str] = None, language: Optional[str] = None, visible: Optional[bool] = None):
+    async def update(
+        self,
+        name: Optional[str] = None,
+        language: Optional[str] = None,
+        visible: Optional[bool] = None,
+        personality_prompt: Optional[str] = None,
+    ):
         """
         Update the Tutor object.
 
@@ -96,6 +103,8 @@ class Tutor(Base, TimestampMixin):
             self.language = language
         if visible is not None:
             self.visible = visible
+        if personality_prompt is not None:
+            self.personality_prompt = personality_prompt
 
         async with async_session() as session:
             session.add(self)

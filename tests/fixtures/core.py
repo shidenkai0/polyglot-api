@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 import httpx
 import pytest
 import pytest_asyncio
@@ -30,13 +32,13 @@ async def client(test_app: FastAPI) -> httpx.AsyncClient:
 
 
 @pytest_asyncio.fixture
-async def user_manager(async_session: AsyncSession) -> UserManager:
+async def user_manager(async_session: AsyncSession) -> AsyncGenerator[UserManager, None]:
     user_db = SQLAlchemyUserDatabase(async_session, User, OAuthAccount)
     yield UserManager(user_db)
 
 
 @pytest_asyncio.fixture
-async def test_user(user_manager: UserManager) -> User:
+async def test_user(user_manager: UserManager) -> AsyncGenerator[User, None]:
     user = await user_manager.create(
         UserCreate(
             email="test@example.com",
@@ -52,7 +54,7 @@ async def test_user(user_manager: UserManager) -> User:
 
 
 @pytest_asyncio.fixture
-async def test_superuser(user_manager: UserManager) -> User:
+async def test_superuser(user_manager: UserManager) -> AsyncGenerator[User, None]:
     user = await user_manager.create(
         UserCreate(
             email="super@example.com",

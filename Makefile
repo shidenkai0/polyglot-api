@@ -7,7 +7,7 @@ IMAGE_NAME=api
 MIGRATION_IMAGE_NAME=api-migration
 
 .PHONY: show_version \
-		setup \ 
+		setup \
 		migrate \
 		seed_db \
 		api_v1_gen \

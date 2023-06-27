@@ -67,9 +67,9 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
         cls,
         user_id: Optional[uuid.UUID] = None,
         tutor_id: Optional[uuid.UUID] = None,
-        max_tokens: Optional[int] = DEFAULT_MAX_TOKENS,
-        max_messages: Optional[int] = DEFAULT_MAX_MESSAGES,
-        message_history: Optional[List[OpenAIMessage]] = [],
+        max_tokens: int = DEFAULT_MAX_TOKENS,
+        max_messages: int = DEFAULT_MAX_MESSAGES,
+        message_history: List[OpenAIMessage] = [],
         commit: bool = True,
     ) -> "ChatSession":
         """

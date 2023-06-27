@@ -1,14 +1,13 @@
 """Initial migration
 
 Revision ID: e90f5b08ab97
-Revises: 
+Revises:
 Create Date: 2023-06-13 16:37:15.879783
 
 """
 import sqlalchemy as sa
 from alembic import op
 from fastapi_users_db_sqlalchemy import GUID
-
 
 # revision identifiers, used by Alembic.
 revision = 'e90f5b08ab97'

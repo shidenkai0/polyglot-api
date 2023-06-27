@@ -1,4 +1,5 @@
 import uuid
+from typing import AsyncGenerator
 from unittest import mock
 
 import asyncpg
@@ -17,7 +18,7 @@ from app.config import settings
 
 
 @pytest_asyncio.fixture
-async def db_template() -> str:
+async def db_template() -> AsyncGenerator[str, None]:
     """
     Create a new database from the source database template and yield the temporary database URL.
 

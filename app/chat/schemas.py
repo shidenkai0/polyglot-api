@@ -36,7 +36,7 @@ class OpenAIMessage(BaseModel):
         # https://pydantic-docs.helpmanual.io/usage/exporting_models/#exclude-none-values
 
     role: OpenAIMessageRole
-    content: Optional[str] = None
+    content: str = ""
     name: Optional[str] = None
     function_call: Optional[dict] = None
 

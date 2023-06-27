@@ -10,7 +10,8 @@ class TutorCreate(BaseModel):
     name: str
     language: str
     visible: bool = True
-    model: Optional[ModelName] = ModelName.GPT3_5_TURBO
+    model: ModelName = ModelName.GPT3_5_TURBO
+    personality_prompt: str = ""
 
 
 class TutorUpdate(BaseModel):
@@ -18,6 +19,7 @@ class TutorUpdate(BaseModel):
     visible: Optional[bool]
     language: Optional[str]
     model: Optional[ModelName]
+    personality_prompt: str = ""
 
 
 class TutorRead(BaseModel):

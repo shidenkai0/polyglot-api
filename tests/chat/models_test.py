@@ -17,11 +17,10 @@ from app.user.models import User
 @pytest.mark.asyncio
 async def test_chat_session_create(test_user: User, test_tutor: Tutor):
     """Test creating a new ChatSession object."""
-    message_history = []
     chat_session = await ChatSession.create(
         user_id=test_user.id,
         tutor_id=test_tutor.id,
-        message_history=message_history,
+        message_history=[],
         max_tokens=20,
         max_messages=10,
     )
@@ -132,6 +131,7 @@ async def test_chat_session_get_response(test_chat_session: ChatSession):
     response = await test_chat_session.get_response(user_message, commit=True)
     assert response is not None
     chat_session = await ChatSession.get(test_chat_session.id)
+    assert chat_session is not None
     assert chat_session.message_history == [
         OpenAIMessage(
             role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.first_name
@@ -159,4 +159,5 @@ async def test_chat_session_get_conversation_opener(test_chat_session: ChatSessi
     response = await test_chat_session.get_conversation_opener(commit=True)
     assert response is not None
     chat_session = await ChatSession.get(test_chat_session.id)
+    assert chat_session is not None
     assert len(chat_session.message_history) == 1

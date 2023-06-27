@@ -48,7 +48,7 @@ async def test_start_chat_session(authenticated_client_user: httpx.AsyncClient, 
     """Test starting a new chat session."""
     response = await authenticated_client_user.get(f"/chat?tutor_id={test_tutor.id}")
     assert response.status_code == 200
-    chat_session: ChatSession = await ChatSession.get(response.json()["id"])
+    chat_session = await ChatSession.get(response.json()["id"])
     assert chat_session is not None
     assert response.json().keys() == {"id", "user_id", "tutor_id", "message_history"}
     assert response.json()["user_id"] == str(test_user.id)
@@ -79,7 +79,7 @@ async def test_delete_chat_session(test_chat_session: ChatSession, authenticated
     """Test deleting a chat session."""
     response = await authenticated_client_user.delete(f"/chat/{test_chat_session.id}")
     assert response.status_code == 204
-    chat_session: ChatSession = await ChatSession.get(test_chat_session.id)
+    chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is None
 
 

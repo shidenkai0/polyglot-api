@@ -53,6 +53,7 @@ class TimestampMixin:
 
 class DeleteMixin:
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    id: uuid.UUID  # Added for type hinting purposes only
 
     @property
     def is_deleted(self) -> bool:
