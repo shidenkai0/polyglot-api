@@ -1,7 +1,7 @@
 from typing import Annotated, List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.chat.models import ChatSession
@@ -81,7 +81,7 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
     """
     Post a message to a chat session.
     """
-    chat_session = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)
+    chat_session: ChatSession = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)
     if chat_session is None:
         raise CHAT_SESSION_NOT_FOUND
     response = await chat_session.get_response(
@@ -92,3 +92,16 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
         mrole=MessageRole.TUTOR,
         content=response,
     )
+
+
+@router.delete("/chat/{chat_id}")
+async def delete_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> None:
+    """
+    Delete a chat session.
+    """
+    chat_session: ChatSession = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)
+    if chat_session is None:
+        raise CHAT_SESSION_NOT_FOUND
+    await ChatSession.delete(chat_session.id)
+
+    return Response(status_code=204)

@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel
 
 
 class OpenAIMessageRole(StrEnum):

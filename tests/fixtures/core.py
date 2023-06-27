@@ -52,8 +52,37 @@ async def test_user(user_manager: UserManager) -> User:
 
 
 @pytest_asyncio.fixture
-async def authenticated_client(client: httpx.AsyncClient, test_user: User) -> httpx.AsyncClient:
+async def test_superuser(user_manager: UserManager) -> User:
+    user = await user_manager.create(
+        UserCreate(
+            email="super@example.com",
+            first_name="Super",
+            last_name="User",
+            locale="en_US",
+            password="password",
+            is_active=True,
+            is_verified=True,
+            is_superuser=True,
+        )
+    )
+    yield user
+
+
+@pytest_asyncio.fixture
+async def authenticated_client_user(client: httpx.AsyncClient, test_user: User) -> httpx.AsyncClient:
     data = {"username": test_user.email, "password": "password", "grant_type": "password"}
+    response = await client.post("/users/auth/jwt/login", data=data)
+    assert response.status_code == 200
+    content = response.json()
+    assert "access_token" in content
+    token = content["access_token"]
+    client.headers["Authorization"] = f"Bearer {token}"
+    yield client
+
+
+@pytest_asyncio.fixture
+async def authenticated_client_superuser(client: httpx.AsyncClient, test_superuser: User) -> httpx.AsyncClient:
+    data = {"username": test_superuser.email, "password": "password", "grant_type": "password"}
     response = await client.post("/users/auth/jwt/login", data=data)
     assert response.status_code == 200
     content = response.json()

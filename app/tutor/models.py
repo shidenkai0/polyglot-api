@@ -118,6 +118,19 @@ class Tutor(Base, TimestampMixin):
             return tutor
 
     @classmethod
+    async def delete(cls, chat_session_id: uuid.UUID) -> None:
+        """
+        Delete a Tutor object by id.
+
+        Args:
+            id (uuid.UUID): The id of the Tutor object.
+        """
+        async with async_session() as session:
+            tutor = await session.get(cls, chat_session_id)
+            await session.delete(tutor)
+            await session.commit()
+
+    @classmethod
     async def get_visible(cls) -> List["Tutor"]:
         """
         Get a list of visible Tutor objects.
@@ -126,6 +139,19 @@ class Tutor(Base, TimestampMixin):
             List[Tutor]: A list of visible Tutor objects.
         """
         query = select(cls).where(cls.visible == True)
+        async with async_session() as session:
+            result = await session.execute(query)
+            return result.scalars().all()
+
+    @classmethod
+    async def get_all(cls) -> List["Tutor"]:
+        """
+        Get a list of all Tutor objects.
+
+        Returns:
+            List[Tutor]: A list of all Tutor objects.
+        """
+        query = select(cls)
         async with async_session() as session:
             result = await session.execute(query)
             return result.scalars().all()

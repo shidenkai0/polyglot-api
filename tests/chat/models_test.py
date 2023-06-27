@@ -53,6 +53,14 @@ async def test_chat_session_get(async_session: AsyncSession, test_chat_session: 
 
 
 @pytest.mark.asyncio
+async def test_chat_session_delete(async_session: AsyncSession, test_chat_session: ChatSession):
+    """Test deleting a ChatSession object."""
+    await ChatSession.delete(test_chat_session.id)
+    chat_session = await ChatSession.get(test_chat_session.id)
+    assert chat_session is None
+
+
+@pytest.mark.asyncio
 async def test_chat_session_get_not_found(async_session: AsyncSession):
     """Test getting a ChatSession object that does not exist."""
     chat_session = await ChatSession.get(UUID(int=0))

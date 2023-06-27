@@ -25,6 +25,14 @@ async def test_tutor_get(async_session, test_tutor):
 
 
 @pytest.mark.asyncio
+async def test_tutor_delete(async_session, test_tutor):
+    """Test deleting a Tutor object."""
+    await Tutor.delete(test_tutor.id)
+    tutor = await Tutor.get(test_tutor.id)
+    assert tutor is None
+
+
+@pytest.mark.asyncio
 async def test_tutor_get_not_found(async_session):
     """Test getting a Tutor object that does not exist."""
     tutor = await Tutor.get(UUID(int=0))

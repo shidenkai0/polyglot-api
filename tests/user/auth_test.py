@@ -5,8 +5,8 @@ from app.user.models import User
 
 
 @pytest.mark.asyncio
-async def test_user_me(authenticated_client: AsyncClient, test_user: User):
-    response = await authenticated_client.get("/users/me")
+async def test_user_me(authenticated_client_user: AsyncClient, test_user: User):
+    response = await authenticated_client_user.get("/users/me")
     assert response.status_code == 200
     assert response.json() == {
         "id": str(test_user.id),

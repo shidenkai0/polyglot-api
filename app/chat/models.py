@@ -116,6 +116,22 @@ class ChatSession(Base, TimestampMixin):
         return chat_session
 
     @classmethod
+    async def delete(cls, chat_session_id: uuid.UUID) -> None:
+        """
+        Delete a chat session by its unique identifier.
+
+        Args:
+            chat_session_id (uuid.UUID): The unique identifier for the chat session.
+
+        Raises:
+            ChatSessionNotFoundError: Raised if no chat session with the given unique identifier exists.
+        """
+        async with async_session() as session:
+            chat_session = await session.get(cls, chat_session_id)
+            await session.delete(chat_session)
+            await session.commit()
+
+    @classmethod
     async def get_by_user_id(cls, user_id: uuid.UUID) -> List["ChatSession"]:
         """
         Get chat sessions by the user's unique identifier.
