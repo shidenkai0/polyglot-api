@@ -15,6 +15,7 @@ ActiveVerifiedUser = Annotated[User, Depends(fastapi_users.current_user(active=T
 
 router = APIRouter(
     responses={404: {"description": "Not found"}},
+    tags=["chat"],
 )
 
 CHAT_SESSION_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat session not found")
@@ -76,7 +77,7 @@ async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSe
     )
 
 
-@router.post("/chat/{chat_id}/message")
+@router.post("/chat/{chat_id}")
 async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVerifiedUser) -> MessageRead:
     """
     Post a message to a chat session.
@@ -89,13 +90,13 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
         commit=True,
     )
     return MessageRead(
-        mrole=MessageRole.TUTOR,
+        role=MessageRole.TUTOR,
         content=response,
     )
 
 
 @router.delete("/chat/{chat_id}")
-async def delete_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> None:
+async def delete_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> Response:
     """
     Delete a chat session.
     """

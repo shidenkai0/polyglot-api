@@ -5,6 +5,7 @@ import pytest
 import pytest_asyncio
 
 from app.chat.models import ChatSession
+from app.chat.schemas import OpenAIMessage, OpenAIMessageRole
 from app.chat.utils import get_chat_response
 from app.tutor.models import Tutor
 from app.user.models import User
@@ -17,7 +18,7 @@ async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -
     chat_session = await ChatSession.create(
         user_id=test_user.id,
         tutor_id=test_tutor.id,
-        message_history=[],
+        message_history=[OpenAIMessage(role=OpenAIMessageRole.ASSISTANT, content="Hello")],
         max_tokens=10,
         max_messages=10,
     )

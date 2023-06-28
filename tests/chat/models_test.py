@@ -31,7 +31,7 @@ async def test_chat_session_create(test_user: User, test_tutor: Tutor):
 @pytest.mark.asyncio
 async def test_chat_session_create_too_long_message_history(test_user: User, test_tutor: Tutor):
     """Test creating a new ChatSession object with a message history that is too long."""
-    message_history = [OpenAIMessage(role=OpenAIMessageRole.USER, text="Hello")] * 11
+    message_history = [OpenAIMessage(role=OpenAIMessageRole.USER, content="Hello")] * 11
     with pytest.raises(MessageHistoryTooLongError):
         await ChatSession.create(
             user_id=test_user.id,

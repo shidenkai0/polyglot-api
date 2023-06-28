@@ -182,7 +182,7 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
                 await session.commit()
         return ai_message.content
 
-    async def get_conversation_opener(self, commit: bool = False) -> Optional[str]:
+    async def get_conversation_opener(self, commit: bool = False) -> str:
         """
         Get a conversation opener from the AI tutor.
 

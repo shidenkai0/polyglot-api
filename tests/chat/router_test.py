@@ -17,7 +17,7 @@ async def test_get_chat_sessions(test_chat_session: ChatSession, authenticated_c
         "id": str(test_chat_session.id),
         "user_id": str(test_chat_session.user_id),
         "tutor_id": str(test_chat_session.tutor_id),
-        "message_history": [],
+        "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR}],
     }
 
 
@@ -30,7 +30,7 @@ async def test_get_chat_session(test_chat_session: ChatSession, authenticated_cl
         "id": str(test_chat_session.id),
         "user_id": str(test_chat_session.user_id),
         "tutor_id": str(test_chat_session.tutor_id),
-        "message_history": [],
+        "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR}],
     }
 
 
@@ -72,6 +72,23 @@ async def test_start_chat_session_tutor_not_visible(authenticated_client_user: h
     await test_tutor.update(visible=False)
     response = await authenticated_client_user.get(f"/chat?tutor_id={test_tutor.id}")
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+@pytest.mark.keep_it_short
+async def test_post_chat_message(test_chat_session: ChatSession, authenticated_client_user: httpx.AsyncClient):
+    """Test posting a new chat message."""
+    initial_message_history_length = len(test_chat_session.message_history)
+    response = await authenticated_client_user.post(
+        f"/chat/{test_chat_session.id}",
+        json={"content": "Hello, world!"},
+    )
+    assert response.status_code == 200
+    chat_session = await ChatSession.get(test_chat_session.id)
+    assert chat_session is not None
+    assert len(chat_session.message_history) == initial_message_history_length + 2  # user message + tutor response
+    assert response.json()["role"] == MessageRole.TUTOR
+    assert response.json()["content"] == chat_session.message_history[-1].content
 
 
 @pytest.mark.asyncio

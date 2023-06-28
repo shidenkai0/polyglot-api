@@ -50,7 +50,7 @@ async def db_template() -> AsyncGenerator[str, None]:
 
 
 @pytest_asyncio.fixture
-async def async_engine(db_template: str) -> AsyncEngine:
+async def async_engine(db_template: str) -> AsyncGenerator[AsyncEngine, None]:
     """Create a new SQLAlchemy async engine connected to the temporary database."""
 
     engine = create_async_engine(db_template, pool_size=settings.POOL_SIZE, max_overflow=settings.MAX_OVERFLOW)
@@ -59,7 +59,7 @@ async def async_engine(db_template: str) -> AsyncEngine:
 
 
 @pytest_asyncio.fixture
-async def async_session(async_engine: AsyncEngine) -> AsyncSession:
+async def async_session(async_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
     """Create a new SQLAlchemy async session."""
     async_session = async_sessionmaker(async_engine, autocommit=False, autoflush=False, expire_on_commit=False)
     async with async_session() as session:

@@ -112,7 +112,7 @@ class Tutor(Base, TimestampMixin):
             await session.refresh(self)
 
     @classmethod
-    async def get(cls, id: uuid.UUID) -> "Tutor":
+    async def get(cls, id: uuid.UUID) -> Optional["Tutor"]:
         """
         Get a Tutor object by id.
 
@@ -150,7 +150,7 @@ class Tutor(Base, TimestampMixin):
         query = select(cls).where(cls.visible == True)
         async with async_session() as session:
             result = await session.execute(query)
-            return result.scalars().all()
+            return list(result.scalars().all())
 
     @classmethod
     async def get_all(cls) -> List["Tutor"]:
@@ -163,7 +163,7 @@ class Tutor(Base, TimestampMixin):
         query = select(cls)
         async with async_session() as session:
             result = await session.execute(query)
-            return result.scalars().all()
+            return list(result.scalars().all())
 
     def get_system_prompt(self, student_name: str) -> str:
         """

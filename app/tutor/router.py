@@ -8,7 +8,10 @@ from app.tutor.schemas import TutorCreate, TutorRead, TutorUpdate
 from app.user.auth import fastapi_users
 from app.user.models import User
 
-router = APIRouter()
+router = APIRouter(
+    responses={404: {"description": "Not found"}},
+    tags=["tutors"],
+)
 
 SuperUser = Annotated[User, Depends(fastapi_users.current_user(active=True, verified=True, superuser=True))]
 ActiveVerifiedUser = Annotated[User, Depends(fastapi_users.current_user(active=True, verified=True))]
@@ -102,7 +105,7 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
 
 
 @router.delete("/tutor/{tutor_id}")
-async def delete_tutor(tutor_id: UUID, user: SuperUser) -> None:
+async def delete_tutor(tutor_id: UUID, user: SuperUser) -> Response:
     """
     Delete a tutor by ID.
     """

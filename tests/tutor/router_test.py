@@ -107,7 +107,7 @@ async def test_delete_tutor(test_tutor: Tutor, authenticated_client_superuser: h
     """Test deleting a tutor."""
     response = await authenticated_client_superuser.delete(f"/tutor/{test_tutor.id}")
     assert response.status_code == 204
-    tutor: Tutor = await Tutor.get(test_tutor.id)
+    tutor = await Tutor.get(test_tutor.id)
     assert tutor is None
 
 

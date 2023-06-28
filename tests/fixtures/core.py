@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Generator
 
 import httpx
 import pytest
@@ -15,7 +15,10 @@ from app.user.schemas import UserCreate
 
 
 @pytest.fixture(autouse=True)
-def test_app() -> FastAPI:
+def test_app() -> Generator[FastAPI, None, None]:
+    """
+    Test the FastAPI app.
+    """
     yield app
 
 
@@ -23,7 +26,7 @@ HOST, PORT = "127.0.0.1", "8080"
 
 
 @pytest_asyncio.fixture
-async def client(test_app: FastAPI) -> httpx.AsyncClient:
+async def client(test_app: FastAPI) -> AsyncGenerator[httpx.AsyncClient, None]:
     host, port = HOST, PORT
     async with httpx.AsyncClient(
         app=app, base_url=f"http://{host}:{port}", headers={"X-User-Fingerprint": "Test"}
@@ -33,7 +36,7 @@ async def client(test_app: FastAPI) -> httpx.AsyncClient:
 
 @pytest_asyncio.fixture
 async def user_manager(async_session: AsyncSession) -> AsyncGenerator[UserManager, None]:
-    user_db = SQLAlchemyUserDatabase(async_session, User, OAuthAccount)
+    user_db: SQLAlchemyUserDatabase = SQLAlchemyUserDatabase(async_session, User, OAuthAccount)
     yield UserManager(user_db)
 
 
@@ -71,7 +74,9 @@ async def test_superuser(user_manager: UserManager) -> AsyncGenerator[User, None
 
 
 @pytest_asyncio.fixture
-async def authenticated_client_user(client: httpx.AsyncClient, test_user: User) -> httpx.AsyncClient:
+async def authenticated_client_user(
+    client: httpx.AsyncClient, test_user: User
+) -> AsyncGenerator[httpx.AsyncClient, None]:
     data = {"username": test_user.email, "password": "password", "grant_type": "password"}
     response = await client.post("/users/auth/jwt/login", data=data)
     assert response.status_code == 200
@@ -83,7 +88,9 @@ async def authenticated_client_user(client: httpx.AsyncClient, test_user: User) 
 
 
 @pytest_asyncio.fixture
-async def authenticated_client_superuser(client: httpx.AsyncClient, test_superuser: User) -> httpx.AsyncClient:
+async def authenticated_client_superuser(
+    client: httpx.AsyncClient, test_superuser: User
+) -> AsyncGenerator[httpx.AsyncClient, None]:
     data = {"username": test_superuser.email, "password": "password", "grant_type": "password"}
     response = await client.post("/users/auth/jwt/login", data=data)
     assert response.status_code == 200

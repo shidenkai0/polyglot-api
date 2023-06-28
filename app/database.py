@@ -61,10 +61,11 @@ class DeleteMixin:
 
     @classmethod
     async def delete(cls, id: uuid.UUID, soft: bool = True) -> None:
+        query: sa.sql.expression.Update | sa.sql.expression.Delete
         if soft:
-            query = sa.update(cls).where(cls.id == id).values(deleted_at=datetime.utcnow())
+            query = sa.update(cls).where(cls.id == id).values(deleted_at=datetime.utcnow())  # type: ignore
         else:
-            query = sa.delete(cls).where(cls.id == id)
+            query = sa.delete(cls).where(cls.id == id)  # type: ignore
         async with async_session() as session:
             await session.execute(query)
             await session.commit()
