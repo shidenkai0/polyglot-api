@@ -1,7 +1,7 @@
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
-from sqlalchemy import UUID, ForeignKey, Integer, select, text
+from sqlalchemy import UUID, ForeignKey, Integer, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.chat.utils import get_chat_response
@@ -42,8 +42,8 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
 
     __tablename__ = "chat_session"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(User.id), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # type: ignore
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(User.id), nullable=False)  # type: ignore
     user: Mapped[User] = relationship("User", lazy="joined")
     message_history: Mapped[List[OpenAIMessage]] = mapped_column(
         ListPydanticType(OpenAIMessage), nullable=False, server_default=text("'[]'::jsonb"), default=[]
@@ -123,7 +123,7 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             return result.scalars().first()
 
     @classmethod
-    async def get_by_user_id(cls, user_id: uuid.UUID) -> List["ChatSession"]:
+    async def get_by_user_id(cls, user_id: uuid.UUID) -> Sequence["ChatSession"]:
         """
         Get chat sessions by the user's unique identifier.
         """
