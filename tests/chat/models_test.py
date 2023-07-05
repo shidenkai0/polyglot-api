@@ -127,12 +127,13 @@ async def test_chat_session_get_by_id_user_id_not_found(test_chat_session: ChatS
 @pytest.mark.keep_it_short
 async def test_chat_session_get_response(test_chat_session: ChatSession):
     """Test getting a response from an AI tutor."""
+    initial_message_history = test_chat_session.message_history
     user_message = MessageWrite(content="Hello")
     response = await test_chat_session.get_response(user_message, commit=True)
     assert response is not None
     chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is not None
-    assert chat_session.message_history == [
+    assert chat_session.message_history == initial_message_history + [
         OpenAIMessage(
             role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.first_name
         ),
@@ -154,10 +155,10 @@ async def test_chat_session_get_response_too_long_message_history(test_chat_sess
 
 @pytest.mark.asyncio
 @pytest.mark.keep_it_short
-async def test_chat_session_get_conversation_opener(test_chat_session: ChatSession):
+async def test_chat_session_get_conversation_opener(empty_test_chat_session: ChatSession):
     """Test getting a conversation opener from an AI tutor."""
-    response = await test_chat_session.get_conversation_opener(commit=True)
+    response = await empty_test_chat_session.get_conversation_opener(commit=True)
     assert response is not None
-    chat_session = await ChatSession.get(test_chat_session.id)
+    chat_session = await ChatSession.get(empty_test_chat_session.id)
     assert chat_session is not None
     assert len(chat_session.message_history) == 1

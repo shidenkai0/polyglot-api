@@ -25,6 +25,22 @@ async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -
     yield chat_session
 
 
+@pytest_asyncio.fixture
+async def empty_test_chat_session(
+    test_user: User, test_tutor: Tutor, async_session
+) -> AsyncGenerator[ChatSession, None]:
+    """Create a new ChatSession object with an empty history for testing."""
+
+    chat_session = await ChatSession.create(
+        user_id=test_user.id,
+        tutor_id=test_tutor.id,
+        message_history=[],
+        max_tokens=10,
+        max_messages=10,
+    )
+    yield chat_session
+
+
 @pytest_asyncio.fixture(autouse=True)
 async def keep_it_short(request):
     if 'keep_it_short' in request.keywords:
