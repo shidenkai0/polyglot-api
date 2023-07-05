@@ -84,6 +84,9 @@ run: build_local
 test: migrate
 	docker-compose run --rm web pytest -vv
 
+dev_tunnel:
+	ngrok http --domain=polyglot-dg86ikmt.ngrok.dev 8080
+
 cleanup:
 	docker-compose down -v --remove-orphans
 
