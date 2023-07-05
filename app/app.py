@@ -15,14 +15,14 @@ def create_app() -> FastAPI:
     """
     app = FastAPI(
         title=settings.PROJECT_NAME,
-        openapi_url="/openapi.json" if settings.show_docs else None,
+        openapi_url="/polyglot.json" if settings.show_docs else None,
     )
 
     app.include_router(user_router, prefix="/users")  # TODO: consider removing prefix
     app.include_router(chat_router)
     app.include_router(tutor_router)
 
-    @app.get("/_health")
+    @app.get("/_health", include_in_schema=False)
     async def health():
         return {"status": "ok"}
 
