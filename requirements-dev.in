@@ -8,3 +8,4 @@ isort
 pydocstyle
 mypy
 pre-commit
+flake8

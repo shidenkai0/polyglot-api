@@ -72,7 +72,7 @@ class DeleteMixin:
 
     @classmethod
     def default_query(cls):
-        return sa.select(cls).where(cls.deleted_at == None)
+        return sa.select(cls).where(cls.deleted_at == None)  # noqa
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

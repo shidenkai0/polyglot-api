@@ -32,6 +32,8 @@ executing==1.2.0
     # via stack-data
 filelock==3.12.2
     # via virtualenv
+flake8==6.0.0
+    # via -r requirements-dev.in
 identify==2.5.24
     # via pre-commit
 iniconfig==2.0.0
@@ -54,6 +56,8 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
+mccabe==0.7.0
+    # via flake8
 mypy==1.4.1
     # via -r requirements-dev.in
 mypy-extensions==1.0.0
@@ -96,8 +100,12 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
+pycodestyle==2.10.0
+    # via flake8
 pydocstyle==6.3.0
     # via -r requirements-dev.in
+pyflakes==3.0.1
+    # via flake8
 pygments==2.15.1
     # via ipython
 pytest==7.3.2

@@ -4,12 +4,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.chat.models import ChatSession, MessageHistoryTooLongError
-from app.chat.schemas import (
-    ChatSessionCreate,
-    MessageWrite,
-    OpenAIMessage,
-    OpenAIMessageRole,
-)
+from app.chat.schemas import MessageWrite, OpenAIMessage, OpenAIMessageRole
 from app.tutor.models import Tutor
 from app.user.models import User
 

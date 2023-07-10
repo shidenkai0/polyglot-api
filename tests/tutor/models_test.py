@@ -42,7 +42,7 @@ async def test_tutor_get_not_found(async_session):
 @pytest.mark.asyncio
 async def test_tutor_get_visible(async_session, test_tutor):
     """Test getting visible Tutor objects."""
-    invisible_tutor = await Tutor.create(
+    await Tutor.create(
         name="The Hidden E",
         language="English",
         visible=False,

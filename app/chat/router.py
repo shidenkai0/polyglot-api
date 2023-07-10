@@ -2,11 +2,9 @@ from typing import Annotated, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.chat.models import ChatSession
 from app.chat.schemas import ChatSessionRead, MessageRead, MessageRole, MessageWrite
-from app.database import get_session
 from app.tutor.models import Tutor
 from app.user.auth import authenticate_user
 from app.user.models import User

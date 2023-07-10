@@ -5,7 +5,6 @@ from unittest import mock
 import asyncpg
 import pytest
 import pytest_asyncio
-from sqlalchemy import text
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,

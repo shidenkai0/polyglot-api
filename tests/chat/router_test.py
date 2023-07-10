@@ -4,7 +4,6 @@ import pytest
 from app.chat.models import ChatSession
 from app.chat.router import CHAT_SESSION_NOT_FOUND
 from app.chat.schemas import MessageRole
-from app.tutor.models import Tutor
 
 
 @pytest.mark.asyncio

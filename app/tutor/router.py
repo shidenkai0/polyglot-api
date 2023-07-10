@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from app.tutor.models import ModelName, Tutor
+from app.tutor.models import Tutor
 from app.tutor.schemas import TutorCreate, TutorRead, TutorUpdate
 from app.user.auth import authenticate_superuser, authenticate_user
 from app.user.models import User

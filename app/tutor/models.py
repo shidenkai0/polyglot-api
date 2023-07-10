@@ -148,7 +148,7 @@ class Tutor(Base, TimestampMixin):
         Returns:
             List[Tutor]: A list of visible Tutor objects.
         """
-        query = select(cls).where(cls.visible == True)
+        query = select(cls).where(cls.visible == True)  # noqa
         async with async_session() as session:
             result = await session.execute(query)
             return list(result.scalars().all())
