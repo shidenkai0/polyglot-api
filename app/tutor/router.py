@@ -4,7 +4,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.tutor.models import Tutor
-from app.tutor.schemas import TutorCreate, TutorRead, TutorUpdate
+from app.tutor.schemas import (
+    TutorCreate,
+    TutorRead,
+    TutorUpdate,
+    internal_to_public_model_name,
+    public_to_internal_model_name,
+)
 from app.user.auth import authenticate_superuser, authenticate_user
 from app.user.models import User
 
@@ -28,7 +34,7 @@ async def create_tutor(tutor_create: TutorCreate, user: SuperUser) -> TutorRead:
         name=tutor_create.name,
         language=tutor_create.language,
         visible=tutor_create.visible,
-        model=tutor_create.model,
+        model=public_to_internal_model_name(tutor_create.model),
     )
 
     return TutorRead(
@@ -36,7 +42,7 @@ async def create_tutor(tutor_create: TutorCreate, user: SuperUser) -> TutorRead:
         name=tutor.name,
         visible=tutor.visible,
         language=tutor.language,
-        model=tutor.model,
+        model=internal_to_public_model_name(tutor.model),
     )
 
 
@@ -56,7 +62,7 @@ async def get_tutors(user: ActiveVerifiedUser) -> List[TutorRead]:
             name=tutor.name,
             visible=tutor.visible,
             language=tutor.language,
-            model=tutor.model,
+            model=internal_to_public_model_name(tutor.model),
         )
         for tutor in tutors
     ]
@@ -76,7 +82,7 @@ async def get_tutor(tutor_id: UUID, user: SuperUser) -> TutorRead:
         name=tutor.name,
         visible=tutor.visible,
         language=tutor.language,
-        model=tutor.model,
+        model=internal_to_public_model_name(tutor.model),
     )
 
 
@@ -89,10 +95,13 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
     if tutor is None:
         raise TUTOR_NOT_FOUND
 
+    internal_model = public_to_internal_model_name(tutor_update.model) if tutor_update.model else None
+
     await tutor.update(
         name=tutor_update.name,
         language=tutor_update.language,
         visible=tutor_update.visible,
+        model=internal_model,
     )
 
     return TutorRead(
@@ -100,7 +109,7 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
         name=tutor.name,
         visible=tutor.visible,
         language=tutor.language,
-        model=tutor.model,
+        model=internal_to_public_model_name(tutor.model),
     )
 
 

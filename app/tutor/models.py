@@ -88,6 +88,7 @@ class Tutor(Base, TimestampMixin):
         name: Optional[str] = None,
         language: Optional[str] = None,
         visible: Optional[bool] = None,
+        model: Optional[ModelName] = None,
         personality_prompt: Optional[str] = None,
     ):
         """
@@ -106,6 +107,9 @@ class Tutor(Base, TimestampMixin):
             self.visible = visible
         if personality_prompt is not None:
             self.personality_prompt = personality_prompt
+
+        if model is not None:
+            self.model = model
 
         async with async_session() as session:
             session.add(self)

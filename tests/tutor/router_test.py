@@ -3,13 +3,13 @@ import pytest
 
 from app.tutor.models import Tutor
 from app.tutor.router import TUTOR_NOT_FOUND
-from app.tutor.schemas import ModelName
+from app.tutor.schemas import PublicModelName, internal_to_public_model_name
 
 
 @pytest.mark.asyncio
 async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient, test_user):
     """Test creating a new tutor."""
-    new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": ModelName.GPT3_5_TURBO}
+    new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": PublicModelName.GPT3_5_TURBO}
     response = await authenticated_client_superuser.post("/tutor", json=new_tutor)
     assert response.status_code == 200
     assert response.json().keys() == {"id", "name", "visible", "language", "model"}
@@ -22,7 +22,7 @@ async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient, t
 @pytest.mark.asyncio
 async def test_create_tutor_as_user(authenticated_client_user: httpx.AsyncClient, test_user):
     """Test creating a new tutor as a user."""
-    new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": ModelName.GPT3_5_TURBO}
+    new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": PublicModelName.GPT3_5_TURBO}
     response = await authenticated_client_user.post("/tutor", json=new_tutor)
     assert response.status_code == 403
 
@@ -37,7 +37,7 @@ async def test_get_tutor(test_tutor: Tutor, authenticated_client_superuser: http
         "name": test_tutor.name,
         "visible": test_tutor.visible,
         "language": test_tutor.language,
-        "model": test_tutor.model,
+        "model": internal_to_public_model_name(test_tutor.model),
     }
 
 
