@@ -1,10 +1,9 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from firebase_admin import app_check, auth
+from firebase_admin import auth
 
-from app.database import async_session
 from app.user.models import User
 
 security = HTTPBearer()

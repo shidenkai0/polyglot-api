@@ -4,7 +4,6 @@ from typing import Optional
 import sqlalchemy as sa
 from sqlalchemy import Boolean, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base, TimestampMixin, async_session
