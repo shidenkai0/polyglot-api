@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.tutor.models import ModelName, Tutor
 from app.tutor.schemas import TutorCreate, TutorRead, TutorUpdate
-from app.user.auth import fastapi_users
+from app.user.auth import authenticate_superuser, authenticate_user
 from app.user.models import User
 
 router = APIRouter(
@@ -13,8 +13,8 @@ router = APIRouter(
     tags=["tutors"],
 )
 
-SuperUser = Annotated[User, Depends(fastapi_users.current_user(active=True, verified=True, superuser=True))]
-ActiveVerifiedUser = Annotated[User, Depends(fastapi_users.current_user(active=True, verified=True))]
+ActiveVerifiedUser = Annotated[User, Depends(authenticate_user)]
+SuperUser = Annotated[User, Depends(authenticate_superuser)]
 
 TUTOR_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor not found")
 

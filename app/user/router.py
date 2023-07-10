@@ -1,36 +1,26 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.config import settings
-from app.user.auth import auth_backend, fastapi_users, google_oauth_client
-from app.user.schemas import UserCreate, UserRead, UserUpdate
+from app.user.models import User
+from app.user.schemas import UserCreate, UserRead
 
 router = APIRouter(
     responses={404: {"description": "Not found"}},
-)
-
-router.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"])
-router.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
-    tags=["auth"],
-)
-router.include_router(
-    fastapi_users.get_reset_password_router(),
-    prefix="/auth",
-    tags=["auth"],
-)
-router.include_router(
-    fastapi_users.get_verify_router(UserRead),
-    prefix="/auth",
-    tags=["auth"],
-)
-router.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate),
-    prefix="",
     tags=["users"],
 )
-router.include_router(
-    fastapi_users.get_oauth_router(google_oauth_client, auth_backend, settings.APP_SECRET),
-    prefix="/auth/google",
-    tags=["auth"],
-)
+
+
+@router.post("")
+async def create_user(user: UserCreate):
+    db_user = User.get_by_firebase_uid(user.firebase_uid)
+    if db_user:
+        raise HTTPException(status_code=400, detail="User already registered")
+    db_user = await User.create(**user.dict())
+
+    return UserRead(
+        id=db_user.id,
+        email=db_user.email,
+        firebase_uid=db_user.firebase_uid,
+        first_name=db_user.first_name,
+        last_name=db_user.last_name,
+        locale=db_user.locale,
+    )

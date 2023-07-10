@@ -1,4 +1,6 @@
+import firebase_admin
 from fastapi import FastAPI
+from firebase_admin import credentials
 
 from app.chat.router import router as chat_router
 from app.config import settings
@@ -25,5 +27,8 @@ def create_app() -> FastAPI:
     @app.get("/_health", include_in_schema=False)
     async def health():
         return {"status": "ok"}
+
+    cred = credentials.Certificate(settings.FIREBASE_KEY_FILE)
+    firebase_admin.initialize_app(cred)
 
     return app

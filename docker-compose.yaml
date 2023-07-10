@@ -7,13 +7,16 @@ services:
       dockerfile: Dockerfile
       args:
         DEV: 1
+    command: uvicorn app.main:app --host 0.0.0.0
     ports:
       - "8080:8080"
     depends_on:
       - db
+      - firebase
     environment:
       DATABASE_URL: postgresql+asyncpg://polyglot:mysecretpassword@db:5432/polyglot
       UVICORN_PORT: 8080
+      FIREBASE_AUTH_EMULATOR_HOST: firebase:9099
       ENV: dev
     env_file:
       - .env
@@ -31,5 +34,18 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  firebase:
+    build:
+      context: .
+      dockerfile: Dockerfile.firebase
+    command: firebase emulators:start --only auth --token $FIREBASE_TOKEN --project $FIREBASE_PROJECT_ID
+    ports:
+      - 9099:9099
+      - 4000:4000
+    volumes:
+      - firebase_data:/root/.cache/firebase/emulators
+      - ./firebase.json:/firebase.json
+      - ./firebaserc:/firebaserc
 volumes:
   db-data:
+  firebase_data:

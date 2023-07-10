@@ -8,10 +8,8 @@ from app.chat.models import ChatSession
 from app.chat.schemas import ChatSessionRead, MessageRead, MessageRole, MessageWrite
 from app.database import get_session
 from app.tutor.models import Tutor
-from app.user.auth import fastapi_users
+from app.user.auth import authenticate_user
 from app.user.models import User
-
-ActiveVerifiedUser = Annotated[User, Depends(fastapi_users.current_user(active=True, verified=True))]
 
 router = APIRouter(
     responses={404: {"description": "Not found"}},
@@ -19,6 +17,8 @@ router = APIRouter(
 )
 
 CHAT_SESSION_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat session not found")
+
+ActiveVerifiedUser = Annotated[User, Depends(authenticate_user)]
 
 
 @router.get("/chats")

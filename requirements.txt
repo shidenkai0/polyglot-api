@@ -24,6 +24,10 @@ attrs==23.1.0
     # via aiohttp
 bcrypt==4.0.1
     # via passlib
+cachecontrol==0.13.1
+    # via firebase-admin
+cachetools==5.3.1
+    # via google-auth
 certifi==2023.5.7
     # via
     #   httpcore
@@ -55,18 +59,64 @@ fastapi-users[oauth,sqlalchemy]==11.0.0
     #   fastapi-users-db-sqlalchemy
 fastapi-users-db-sqlalchemy==5.0.0
     # via fastapi-users
+firebase-admin==6.2.0
+    # via -r requirements.in
 frozenlist==1.3.3
     # via
     #   aiohttp
     #   aiosignal
+google-api-core[grpc]==2.11.1
+    # via
+    #   firebase-admin
+    #   google-api-python-client
+    #   google-cloud-core
+    #   google-cloud-firestore
+    #   google-cloud-storage
+google-api-python-client==2.92.0
+    # via firebase-admin
+google-auth==2.21.0
+    # via
+    #   google-api-core
+    #   google-api-python-client
+    #   google-auth-httplib2
+    #   google-cloud-core
+    #   google-cloud-storage
+google-auth-httplib2==0.1.0
+    # via google-api-python-client
+google-cloud-core==2.3.3
+    # via
+    #   google-cloud-firestore
+    #   google-cloud-storage
+google-cloud-firestore==2.11.1
+    # via firebase-admin
+google-cloud-storage==2.10.0
+    # via firebase-admin
+google-crc32c==1.5.0
+    # via google-resumable-media
+google-resumable-media==2.5.0
+    # via google-cloud-storage
+googleapis-common-protos==1.59.1
+    # via
+    #   google-api-core
+    #   grpcio-status
 greenlet==2.0.2
     # via sqlalchemy
+grpcio==1.56.0
+    # via
+    #   google-api-core
+    #   grpcio-status
+grpcio-status==1.56.0
+    # via google-api-core
 h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
 httpcore==0.16.3
     # via httpx
+httplib2==0.22.0
+    # via
+    #   google-api-python-client
+    #   google-auth-httplib2
 httpx==0.23.3
     # via httpx-oauth
 httpx-oauth==0.11.2
@@ -94,6 +144,8 @@ marshmallow==3.19.0
     #   marshmallow-enum
 marshmallow-enum==1.5.1
     # via dataclasses-json
+msgpack==1.0.5
+    # via cachecontrol
 multidict==6.0.4
     # via
     #   aiohttp
@@ -116,6 +168,21 @@ packaging==23.1
     # via marshmallow
 passlib[bcrypt]==1.7.4
     # via fastapi-users
+proto-plus==1.22.3
+    # via google-cloud-firestore
+protobuf==4.23.4
+    # via
+    #   google-api-core
+    #   google-cloud-firestore
+    #   googleapis-common-protos
+    #   grpcio-status
+    #   proto-plus
+pyasn1==0.5.0
+    # via
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.3.0
+    # via google-auth
 pycparser==2.21
     # via cffi
 pydantic==1.10.9
@@ -126,18 +193,31 @@ pydantic==1.10.9
     #   langchainplus-sdk
     #   openapi-schema-pydantic
 pyjwt[crypto]==2.6.0
-    # via fastapi-users
+    # via
+    #   fastapi-users
+    #   firebase-admin
+pyparsing==3.1.0
+    # via httplib2
 python-multipart==0.0.6
     # via fastapi-users
 pyyaml==6.0
     # via langchain
 requests==2.31.0
     # via
+    #   cachecontrol
+    #   google-api-core
+    #   google-cloud-storage
     #   langchain
     #   langchainplus-sdk
     #   openai
 rfc3986[idna2008]==1.5.0
     # via httpx
+rsa==4.9
+    # via google-auth
+six==1.16.0
+    # via
+    #   google-auth
+    #   google-auth-httplib2
 sniffio==1.3.0
     # via
     #   anyio
@@ -165,8 +245,12 @@ typing-extensions==4.6.3
     #   typing-inspect
 typing-inspect==0.9.0
     # via dataclasses-json
-urllib3==2.0.3
-    # via requests
+uritemplate==4.1.1
+    # via google-api-python-client
+urllib3==1.26.16
+    # via
+    #   google-auth
+    #   requests
 uvicorn==0.22.0
     # via -r requirements.in
 websockets==11.0.3

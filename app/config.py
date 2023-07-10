@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 import openai
 from pydantic import BaseSettings, PostgresDsn
@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     APP_SECRET: str
     ENV: Env = Env.DEV
     PROJECT_NAME: str = "polyglot"
+    FIREBASE_KEY_FILE: str = "polyglot-dev.json"
+    FIREBASE_AUTH_EMULATOR_HOST: str
 
     @property
     def show_docs(self):

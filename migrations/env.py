@@ -8,7 +8,7 @@ from app.config import settings
 from app.database import Base
 
 # Import all models here
-from app.user.models import User, OAuthAccount  # noqa isort:skip
+from app.user.models import User  # noqa isort:skip
 from app.chat.models import ChatSession  # noqa isort:skip
 from app.tutor.models import Tutor  # noqa isort:skip
 

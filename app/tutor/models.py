@@ -75,12 +75,13 @@ class Tutor(Base, TimestampMixin):
             Tutor: The newly created Tutor object.
         """
         tutor = cls(name=name, language=language, visible=visible, model=model, personality_prompt=personality_prompt)
-        async with async_session() as session:
-            if commit:
+
+        if commit:
+            async with async_session() as session:
                 session.add(tutor)
                 await session.commit()
                 await session.refresh(tutor)
-            return tutor
+        return tutor
 
     async def update(
         self,

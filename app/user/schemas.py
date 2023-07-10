@@ -1,23 +1,20 @@
-import uuid
-from typing import Optional
+from uuid import UUID
 
-from fastapi_users import schemas
+from pydantic import BaseModel, EmailStr
 
 
-class UserRead(schemas.BaseUser[uuid.UUID]):
-    id: uuid.UUID
+class UserCreate(BaseModel):
+    email: EmailStr
+    firebase_uid: str
     first_name: str
     last_name: str
     locale: str
 
 
-class UserCreate(schemas.BaseUserCreate):
+class UserRead(BaseModel):
+    id: UUID
+    email: EmailStr
+    firebase_uid: str
     first_name: str
     last_name: str
-    locale: Optional[str] = "en_US"
-
-
-class UserUpdate(schemas.BaseUserUpdate):
-    first_name: Optional[str]
-    last_name: Optional[str]
-    locale: Optional[str]
+    locale: str

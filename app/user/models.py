@@ -1,30 +1,58 @@
-from typing import Annotated, AsyncGenerator, List
+import uuid
+from typing import Optional
 
-from fastapi import Depends
-from fastapi_users.db import (
-    SQLAlchemyBaseOAuthAccountTableUUID,
-    SQLAlchemyBaseUserTableUUID,
-    SQLAlchemyUserDatabase,
-)
-from sqlalchemy import String
+import sqlalchemy as sa
+from sqlalchemy import Boolean, String
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database import Base, TimestampMixin, get_session
-
-
-class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
-    pass
+from app.database import Base, TimestampMixin, async_session
 
 
-class User(SQLAlchemyBaseUserTableUUID, Base, TimestampMixin):
-    oauth_accounts: Mapped[List[OAuthAccount]] = relationship("OAuthAccount", lazy="joined")
+class User(Base, TimestampMixin):
+    __tablename__ = "user"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
+    firebase_uid: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     locale: Mapped[str] = mapped_column(String(10), nullable=False, default="en_US")
+    is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    def __repr__(self) -> str:
+        return f"<User {self.id} {self.firebase_uid} {self.email}>"
 
-async def get_user_db(
-    session: Annotated[AsyncSession, Depends(get_session)]
-) -> AsyncGenerator[SQLAlchemyUserDatabase, None]:
-    yield SQLAlchemyUserDatabase(session, User, OAuthAccount)
+    @classmethod
+    async def create(
+        cls,
+        email: str,
+        firebase_uid: str,
+        first_name: str,
+        last_name: str,
+        locale: str,
+        is_superuser: bool,
+        commit: bool = True,
+    ) -> "User":
+        user = cls(
+            email=email,
+            firebase_uid=firebase_uid,
+            first_name=first_name,
+            last_name=last_name,
+            locale=locale,
+            is_superuser=is_superuser,
+        )
+        if commit:
+            async with async_session() as session:
+                session.add(user)
+                await session.commit()
+                await session.refresh(user)
+        return user
+
+    @classmethod
+    async def get_by_firebase_uid(cls, firebase_uid: str) -> Optional["User"]:
+        query = sa.select(cls).where(cls.firebase_uid == firebase_uid)
+        async with async_session() as session:
+            result = await session.execute(query)
+            return result.scalars().first()

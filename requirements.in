@@ -9,3 +9,4 @@ pydantic
 asyncpg
 orjson
 alembic
+firebase_admin

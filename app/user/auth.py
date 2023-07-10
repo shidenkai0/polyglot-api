@@ -1,61 +1,34 @@
-import uuid
-from typing import Annotated, AsyncGenerator, Optional
+from typing import Annotated
 
-from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    BearerTransport,
-    JWTStrategy,
-)
-from fastapi_users.db import SQLAlchemyUserDatabase
-from httpx_oauth.clients.google import GoogleOAuth2
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from firebase_admin import app_check, auth
 
-from app.config import settings
-from app.user.models import User, get_user_db
+from app.database import async_session
+from app.user.models import User
 
-google_oauth_client = GoogleOAuth2(
-    client_id=settings.GOOGLE_OAUTH_CLIENT_ID,
-    client_secret=settings.GOOGLE_OAUTH_CLIENT_SECRET,
-)
-
-SECRET = settings.APP_SECRET
+security = HTTPBearer()
 
 
-class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = SECRET
-    verification_token_secret = SECRET
+async def authenticate_user(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]) -> User:
+    id_token = credentials.credentials
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        firebase_uid = decoded_token['uid']
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Invalid authentication credentials")
 
-    async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+    user = await User.get_by_firebase_uid(firebase_uid)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
 
-    async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
-        print(f"User {user.id} has forgot their password. Reset token: {token}")
-
-    async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
-        print(f"Verification requested for user {user.id}. Verification token: {token}")
-
-
-async def get_user_manager(
-    user_db: Annotated[SQLAlchemyUserDatabase, Depends(get_user_db)]
-) -> AsyncGenerator[UserManager, None]:
-    yield UserManager(user_db)
+    return user
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
-
-
-def get_jwt_strategy() -> JWTStrategy:
-    # We may want to use RS256 instead of HS256 in production
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600, token_audience=[f"{settings.PROJECT_NAME}:auth"])
-
-
-auth_backend = AuthenticationBackend(
-    name="jwt",
-    transport=bearer_transport,
-    get_strategy=get_jwt_strategy,
-)
-
-fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
-
-current_active_user = fastapi_users.current_user(active=True)
+async def authenticate_superuser(user: Annotated[User, Depends(authenticate_user)]) -> User:
+    if not user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges",
+        )
+    return user
