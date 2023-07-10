@@ -21,9 +21,7 @@ ActiveVerifiedUser = Annotated[User, Depends(authenticate_user)]
 
 @router.get("/chats")
 async def get_chat_sessions(user: ActiveVerifiedUser) -> List[ChatSessionRead]:
-    """
-    Get all chat sessions for the current user.
-    """
+    """Get all chat sessions for the current user."""
     chat_sessions = await ChatSession.get_by_user_id(user_id=user.id)
     return [
         ChatSessionRead(
@@ -38,9 +36,7 @@ async def get_chat_sessions(user: ActiveVerifiedUser) -> List[ChatSessionRead]:
 
 @router.get("/chat/{chat_id}")
 async def get_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> ChatSessionRead:
-    """
-    Get a chat session by ID.
-    """
+    """Get a chat session by ID."""
     chat_session = await ChatSession.get(chat_id)
     if chat_session is None:
         raise CHAT_SESSION_NOT_FOUND
@@ -56,9 +52,7 @@ async def get_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> ChatSessi
 
 @router.get("/chat")
 async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSessionRead:
-    """
-    Start a new chat session.
-    """
+    """Start a new chat session."""
     tutor = await Tutor.get(tutor_id)
     if tutor is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor not found")
@@ -77,9 +71,7 @@ async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSe
 
 @router.post("/chat/{chat_id}")
 async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVerifiedUser) -> MessageRead:
-    """
-    Post a message to a chat session.
-    """
+    """Post a message to a chat session."""
     chat_session = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)
     if chat_session is None:
         raise CHAT_SESSION_NOT_FOUND
@@ -95,9 +87,7 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
 
 @router.delete("/chat/{chat_id}")
 async def delete_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> Response:
-    """
-    Delete a chat session.
-    """
+    """Delete a chat session."""
     chat_session = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)
     if chat_session is None:
         raise CHAT_SESSION_NOT_FOUND

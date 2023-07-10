@@ -45,6 +45,15 @@ Base = declarative_base(metadata=metadata)
 
 
 class TimestampMixin:
+    """
+    A mixin class that adds `created_at` and `updated_at` timestamp columns to a SQLAlchemy model.
+
+    Attributes:
+        created_at (Mapped[datetime]): A mapped column representing the timestamp when the row was created.
+        updated_at (Mapped[datetime]): A mapped column representing the timestamp when the row was last updated.
+
+    """
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=sa.func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()
@@ -52,6 +61,16 @@ class TimestampMixin:
 
 
 class DeleteMixin:
+    """
+    A mixin class that adds soft deletion to a SQLAlchemy model.
+
+    Attributes:
+        id (uuid.UUID): A UUID representing the ID of the row to delete.
+        soft (bool): A boolean indicating whether to perform a soft delete (default) or a hard delete.
+
+    """
+
+    ...
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     id: uuid.UUID  # Added for type hinting purposes only
 
@@ -61,6 +80,18 @@ class DeleteMixin:
 
     @classmethod
     async def delete(cls, id: uuid.UUID, soft: bool = True) -> None:
+        """
+        Delete a row from the database.
+
+        Args:
+            cls: The SQLAlchemy class to delete from.
+            id (uuid.UUID): The ID of the row to delete.
+            soft (bool, optional): Whether to perform a soft delete (default) or a hard delete. Defaults to True.
+
+        Raises:
+            sqlalchemy.exc.NoResultFound: If no row with the given ID is found.
+
+        """
         query: sa.sql.expression.Update | sa.sql.expression.Delete
         if soft:
             query = sa.update(cls).where(cls.id == id).values(deleted_at=datetime.utcnow())  # type: ignore
@@ -72,6 +103,15 @@ class DeleteMixin:
 
     @classmethod
     def default_query(cls):
+        """
+        Return a SQLAlchemy select statement that selects all rows from the given class where the `deleted_at` column is null.
+
+        Args:
+            cls: The SQLAlchemy class to select from.
+
+        Returns:
+            sqlalchemy.sql.selectable.Select: A SQLAlchemy select statement.
+        """
         return sa.select(cls).where(cls.deleted_at == None)  # noqa
 
 
