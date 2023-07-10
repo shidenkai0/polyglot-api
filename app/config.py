@@ -20,8 +20,6 @@ class Settings(BaseSettings):
     DATABASE_URL: PostgresDsn
     POOL_SIZE: int = 10
     MAX_OVERFLOW: int = 20
-    GOOGLE_OAUTH_CLIENT_ID: str
-    GOOGLE_OAUTH_CLIENT_SECRET: str
     OPENAI_API_KEY: str
     APP_SECRET: str
     ENV: Env = Env.DEV
