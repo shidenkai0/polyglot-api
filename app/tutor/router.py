@@ -1,7 +1,7 @@
-from typing import Annotated, List
+from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 from app.tutor.models import Tutor
 from app.tutor.schemas import (
@@ -11,16 +11,13 @@ from app.tutor.schemas import (
     internal_to_public_model_name,
     public_to_internal_model_name,
 )
-from app.user.auth import authenticate_superuser, authenticate_user
-from app.user.models import User
+from app.user.auth import ActiveVerifiedUser, SuperUser
 
 router = APIRouter(
     responses={404: {"description": "Not found"}},
     tags=["tutors"],
 )
 
-ActiveVerifiedUser = Annotated[User, Depends(authenticate_user)]
-SuperUser = Annotated[User, Depends(authenticate_superuser)]
 
 TUTOR_NOT_FOUND = HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor not found")
 

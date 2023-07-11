@@ -7,6 +7,9 @@ from app.config import settings
 from app.tutor.router import router as tutor_router
 from app.user.router import router as user_router
 
+cred = credentials.Certificate(settings.FIREBASE_KEY_FILE)
+firebase_admin.initialize_app(cred)
+
 
 def create_app() -> FastAPI:
     """
@@ -27,8 +30,5 @@ def create_app() -> FastAPI:
     @app.get("/_health", include_in_schema=False)
     async def health():
         return {"status": "ok"}
-
-    cred = credentials.Certificate(settings.FIREBASE_KEY_FILE)
-    firebase_admin.initialize_app(cred)
 
     return app

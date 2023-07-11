@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
     email: EmailStr
-    firebase_uid: str
+    firebase_id_token: str
     first_name: str
     last_name: str
     locale: str
