@@ -34,7 +34,7 @@ async def get_chat_sessions(user: ActiveVerifiedUser) -> List[ChatSessionRead]:
     ]
 
 
-@router.get("/chat/{chat_id}")
+@router.get("/chat/{chat_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Chat session not found"}})
 async def get_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> ChatSessionRead:
     """Get a chat session by ID."""
     chat_session = await ChatSession.get(chat_id)
@@ -50,7 +50,7 @@ async def get_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> ChatSessi
     )
 
 
-@router.get("/chat")
+@router.get("/chat", responses={status.HTTP_404_NOT_FOUND: {"description": "Chat session not found"}})
 async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSessionRead:
     """Start a new chat session."""
     tutor = await Tutor.get(tutor_id)
@@ -69,7 +69,7 @@ async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSe
     )
 
 
-@router.post("/chat/{chat_id}")
+@router.post("/chat/{chat_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Chat session not found"}})
 async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVerifiedUser) -> MessageRead:
     """Post a message to a chat session."""
     chat_session = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)
@@ -85,7 +85,7 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
     )
 
 
-@router.delete("/chat/{chat_id}")
+@router.delete("/chat/{chat_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Chat session not found"}})
 async def delete_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> Response:
     """Delete a chat session."""
     chat_session = await ChatSession.get_by_id_user_id(chat_session_id=chat_id, user_id=user.id)

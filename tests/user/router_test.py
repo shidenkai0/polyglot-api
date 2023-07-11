@@ -65,3 +65,17 @@ async def test_create_user_invalid_token(client: httpx.AsyncClient):
         },
     )
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_get_me(authenticated_client_user: httpx.AsyncClient, test_user: User):
+    response = await authenticated_client_user.get("/users/me")
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": str(test_user.id),
+        "email": test_user.email,
+        "firebase_uid": test_user.firebase_uid,
+        "first_name": test_user.first_name,
+        "last_name": test_user.last_name,
+        "locale": test_user.locale,
+    }

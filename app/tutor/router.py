@@ -83,7 +83,7 @@ async def get_tutor(tutor_id: UUID, user: SuperUser) -> TutorRead:
     )
 
 
-@router.put("/tutor/{tutor_id}")
+@router.put("/tutor/{tutor_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Tutor not found"}})
 async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUser) -> TutorRead:
     """
     Update a tutor by ID.
@@ -110,7 +110,7 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
     )
 
 
-@router.delete("/tutor/{tutor_id}")
+@router.delete("/tutor/{tutor_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Tutor not found"}})
 async def delete_tutor(tutor_id: UUID, user: SuperUser) -> Response:
     """
     Delete a tutor by ID.
