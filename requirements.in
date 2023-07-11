@@ -1,12 +1,12 @@
 openai
 langchain
 fastapi
-fastapi-users[sqlalchemy,oauth]
 uvicorn
 sqlalchemy[asyncio]
 websockets
-pydantic
+pydantic[email]
 asyncpg
 orjson
 alembic
 firebase_admin
+httpx
