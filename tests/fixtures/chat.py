@@ -11,7 +11,10 @@ from app.user.models import User
 
 
 @pytest_asyncio.fixture
-async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -> AsyncGenerator[ChatSession, None]:
+async def test_chat_session(
+    test_user: User,
+    test_tutor: Tutor,
+) -> AsyncGenerator[ChatSession, None]:
     """Create a new ChatSession object for testing."""
 
     chat_session = await ChatSession.create(
@@ -26,7 +29,8 @@ async def test_chat_session(test_user: User, test_tutor: Tutor, async_session) -
 
 @pytest_asyncio.fixture
 async def empty_test_chat_session(
-    test_user: User, test_tutor: Tutor, async_session
+    test_user: User,
+    test_tutor: Tutor,
 ) -> AsyncGenerator[ChatSession, None]:
     """Create a new ChatSession object with an empty history for testing."""
 

@@ -7,7 +7,7 @@ from app.tutor.schemas import PublicModelName, internal_to_public_model_name
 
 
 @pytest.mark.asyncio
-async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient, test_user):
+async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient):
     """Test creating a new tutor."""
     new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": PublicModelName.GPT3_5_TURBO}
     response = await authenticated_client_superuser.post("/tutor", json=new_tutor)
@@ -20,7 +20,7 @@ async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient, t
 
 
 @pytest.mark.asyncio
-async def test_create_tutor_as_user(authenticated_client_user: httpx.AsyncClient, test_user):
+async def test_create_tutor_as_user(authenticated_client_user: httpx.AsyncClient):
     """Test creating a new tutor as a user."""
     new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": PublicModelName.GPT3_5_TURBO}
     response = await authenticated_client_user.post("/tutor", json=new_tutor)
