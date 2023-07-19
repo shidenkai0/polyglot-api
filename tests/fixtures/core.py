@@ -77,7 +77,7 @@ async def create_test_user(firebase_user: auth.UserRecord, is_superuser: bool) -
         email=firebase_user.email,
         firebase_uid=firebase_user.uid,
         name="First",
-        locale="en_US",
+        language="en_US",
         is_superuser=is_superuser,
     )
     assert user.id is not None

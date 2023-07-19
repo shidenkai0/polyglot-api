@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "polyglot"
     FIREBASE_KEY_FILE: str = "polyglot-dev.json"
     FIREBASE_AUTH_EMULATOR_HOST: str
+    SUPPORTED_LANGUAGES: list[str] = ["en", "fr"]
 
     @property
     def show_docs(self):

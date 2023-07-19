@@ -16,7 +16,7 @@ async def test_create_user(client: httpx.AsyncClient, test_firebase_user: auth.U
             "email": test_firebase_user.email,
             "firebase_id_token": id_token,
             "name": "Test",
-            "locale": "test",
+            "language": "en",
         },
     )
     assert response.status_code == 200
@@ -27,7 +27,7 @@ async def test_create_user(client: httpx.AsyncClient, test_firebase_user: auth.U
         "email": db_user.email,
         "firebase_uid": db_user.firebase_uid,
         "name": db_user.name,
-        "locale": db_user.locale,
+        "language": db_user.language,
     }
 
 
@@ -41,7 +41,7 @@ async def test_create_user_already_exists(client: httpx.AsyncClient, test_user: 
             "email": test_user.email,
             "firebase_id_token": id_token,
             "name": "Test",
-            "locale": "test",
+            "language": "en",
         },
     )
     assert response.status_code == 400
@@ -57,10 +57,31 @@ async def test_create_user_invalid_token(client: httpx.AsyncClient):
             "email": "fake@email.com",
             "firebase_id_token": invalid_id_token,
             "name": "Test",
-            "locale": "test",
+            "language": "en",
         },
     )
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_create_user_invalid_language(client: httpx.AsyncClient, test_firebase_user: auth.UserRecord):
+    custom_token = auth.create_custom_token(test_firebase_user.uid)
+    id_token = await exchange_custom_token_for_id_token(custom_token.decode("utf-8"))
+    response = await client.post(
+        "/users",
+        json={
+            "email": test_firebase_user.email,
+            "firebase_id_token": id_token,
+            "name": "Test",
+            "language": "invalid_language",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json() == {
+        'detail': [
+            {'loc': ['body', 'language'], 'msg': 'Language invalid_language is not supported', 'type': 'value_error'}
+        ]
+    }
 
 
 @pytest.mark.asyncio
@@ -72,5 +93,5 @@ async def test_get_me(authenticated_client_user: httpx.AsyncClient, test_user: U
         "email": test_user.email,
         "firebase_uid": test_user.firebase_uid,
         "name": test_user.name,
-        "locale": test_user.locale,
+        "language": test_user.language,
     }

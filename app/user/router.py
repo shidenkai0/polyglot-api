@@ -39,7 +39,7 @@ async def create_user(user: UserCreate) -> UserRead:
         email=user.email,
         firebase_uid=firebase_uid,
         name=user.name,
-        locale=user.locale,
+        language=user.language,
         is_superuser=False,
     )
 
@@ -48,7 +48,7 @@ async def create_user(user: UserCreate) -> UserRead:
         email=db_user.email,
         firebase_uid=firebase_uid,
         name=db_user.name,
-        locale=db_user.locale,
+        language=db_user.language,
     )
 
 
@@ -62,5 +62,5 @@ async def get_me(user: ActiveVerifiedUser) -> UserRead:
         email=user.email,
         firebase_uid=user.firebase_uid,
         name=user.name,
-        locale=user.locale,
+        language=user.language,
     )

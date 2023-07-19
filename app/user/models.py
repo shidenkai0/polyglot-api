@@ -16,7 +16,7 @@ class User(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
     firebase_uid: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
-    locale: Mapped[str] = mapped_column(String(10), nullable=False, default="en_US")
+    language: Mapped[str] = mapped_column(String(5), nullable=False, default="en")
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     def __repr__(self) -> str:
@@ -28,7 +28,7 @@ class User(Base, TimestampMixin):
         email: str,
         firebase_uid: str,
         name: str,
-        locale: str,
+        language: str,
         is_superuser: bool,
         commit: bool = True,
     ) -> "User":
@@ -36,7 +36,7 @@ class User(Base, TimestampMixin):
             email=email,
             firebase_uid=firebase_uid,
             name=name,
-            locale=locale,
+            language=language,
             is_superuser=is_superuser,
         )
         if commit:
