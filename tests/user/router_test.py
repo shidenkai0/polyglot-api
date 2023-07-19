@@ -15,8 +15,7 @@ async def test_create_user(client: httpx.AsyncClient, test_firebase_user: auth.U
         json={
             "email": test_firebase_user.email,
             "firebase_id_token": id_token,
-            "first_name": "Test",
-            "last_name": "User",
+            "name": "Test",
             "locale": "test",
         },
     )
@@ -27,8 +26,7 @@ async def test_create_user(client: httpx.AsyncClient, test_firebase_user: auth.U
         "id": str(db_user.id),
         "email": db_user.email,
         "firebase_uid": db_user.firebase_uid,
-        "first_name": db_user.first_name,
-        "last_name": db_user.last_name,
+        "name": db_user.name,
         "locale": db_user.locale,
     }
 
@@ -42,8 +40,7 @@ async def test_create_user_already_exists(client: httpx.AsyncClient, test_user: 
         json={
             "email": test_user.email,
             "firebase_id_token": id_token,
-            "first_name": "Test",
-            "last_name": "User",
+            "name": "Test",
             "locale": "test",
         },
     )
@@ -59,8 +56,7 @@ async def test_create_user_invalid_token(client: httpx.AsyncClient):
         json={
             "email": "fake@email.com",
             "firebase_id_token": invalid_id_token,
-            "first_name": "Test",
-            "last_name": "User",
+            "name": "Test",
             "locale": "test",
         },
     )
@@ -75,7 +71,6 @@ async def test_get_me(authenticated_client_user: httpx.AsyncClient, test_user: U
         "id": str(test_user.id),
         "email": test_user.email,
         "firebase_uid": test_user.firebase_uid,
-        "first_name": test_user.first_name,
-        "last_name": test_user.last_name,
+        "name": test_user.name,
         "locale": test_user.locale,
     }

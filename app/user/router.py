@@ -23,11 +23,11 @@ router = APIRouter(
         status.HTTP_400_BAD_REQUEST: {"description": "User already registered"},
     },
 )
-async def create_user(user: UserCreate):
+async def create_user(user: UserCreate) -> UserRead:
     try:
         decoded_token = auth.verify_id_token(user.firebase_id_token)
     except (ValueError, InvalidIdTokenError, ExpiredIdTokenError, RevokedIdTokenError):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired Firebase ID token")
 
     firebase_uid = decoded_token['uid']
 
@@ -38,8 +38,7 @@ async def create_user(user: UserCreate):
     db_user = await User.create(
         email=user.email,
         firebase_uid=firebase_uid,
-        first_name=user.first_name,
-        last_name=user.last_name,
+        name=user.name,
         locale=user.locale,
         is_superuser=False,
     )
@@ -48,8 +47,7 @@ async def create_user(user: UserCreate):
         id=db_user.id,
         email=db_user.email,
         firebase_uid=firebase_uid,
-        first_name=db_user.first_name,
-        last_name=db_user.last_name,
+        name=db_user.name,
         locale=db_user.locale,
     )
 
@@ -63,7 +61,6 @@ async def get_me(user: ActiveVerifiedUser) -> UserRead:
         id=user.id,
         email=user.email,
         firebase_uid=user.firebase_uid,
-        first_name=user.first_name,
-        last_name=user.last_name,
+        name=user.name,
         locale=user.locale,
     )

@@ -129,9 +129,7 @@ async def test_chat_session_get_response(test_chat_session: ChatSession):
     chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is not None
     assert chat_session.message_history == initial_message_history + [
-        OpenAIMessage(
-            role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.first_name
-        ),
+        OpenAIMessage(role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.name),
         OpenAIMessage(role=OpenAIMessageRole.ASSISTANT, content=response),
     ]
 

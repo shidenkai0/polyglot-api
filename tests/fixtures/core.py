@@ -76,8 +76,7 @@ async def create_test_user(firebase_user: auth.UserRecord, is_superuser: bool) -
     user = await User.create(
         email=firebase_user.email,
         firebase_uid=firebase_user.uid,
-        first_name="First",
-        last_name="Last",
+        name="First",
         locale="en_US",
         is_superuser=is_superuser,
     )

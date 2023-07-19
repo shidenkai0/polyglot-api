@@ -164,10 +164,10 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             str: The tutor's response to the user's message.
         """
         system_message = OpenAIMessage(
-            role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.first_name)
+            role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.name)
         )
 
-        user_message = OpenAIMessage(role=OpenAIMessageRole.USER, content=message.content, name=self.user.first_name)
+        user_message = OpenAIMessage(role=OpenAIMessageRole.USER, content=message.content, name=self.user.name)
         messages = [system_message] + self.message_history + [user_message]
         if len(messages) > self.max_messages:
             raise MessageHistoryTooLongError(f"Message history is too long. Max messages is {self.max_messages}.")
@@ -193,7 +193,7 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             Optional[str]: The tutor's conversation opener.
         """
         system_message = OpenAIMessage(
-            role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.first_name)
+            role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.name)
         )
 
         ai_message = await get_chat_response(

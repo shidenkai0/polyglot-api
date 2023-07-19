@@ -15,8 +15,7 @@ class User(Base, TimestampMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
     firebase_uid: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
-    first_name: Mapped[str] = mapped_column(String(50), nullable=False)
-    last_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
     locale: Mapped[str] = mapped_column(String(10), nullable=False, default="en_US")
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
@@ -28,8 +27,7 @@ class User(Base, TimestampMixin):
         cls,
         email: str,
         firebase_uid: str,
-        first_name: str,
-        last_name: str,
+        name: str,
         locale: str,
         is_superuser: bool,
         commit: bool = True,
@@ -37,8 +35,7 @@ class User(Base, TimestampMixin):
         user = cls(
             email=email,
             firebase_uid=firebase_uid,
-            first_name=first_name,
-            last_name=last_name,
+            name=name,
             locale=locale,
             is_superuser=is_superuser,
         )
