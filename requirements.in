@@ -10,3 +10,4 @@ orjson
 alembic
 firebase_admin
 httpx
+click
