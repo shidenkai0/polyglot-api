@@ -26,7 +26,8 @@ class Tutor(Base, TimestampMixin):
 
     Attributes:
         id (uuid.UUID): The unique identifier for the tutor.
-        display_name (str): The name of the tutor as displayed to users.
+        name (str): The name of the tutor as displayed to users.
+        avatar_url (str): The URL of the tutor's avatar image.
         visible (bool): Whether the tutor is visible to users.
         system_prompt (str): The system prompt for the tutor.
         language (str): The language of the tutor.
@@ -36,6 +37,7 @@ class Tutor(Base, TimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String, nullable=False, default="")
+    avatar_url: Mapped[str] = mapped_column(String, nullable=False, default="")
     visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     language: Mapped[str] = mapped_column(String, nullable=False, default="english")
     system_prompt: Mapped[str] = mapped_column(String, nullable=False, default=SYSTEM_TEMPLATE_STRING)
@@ -55,6 +57,7 @@ class Tutor(Base, TimestampMixin):
     async def create(
         cls,
         name: str,
+        avatar_url: str,
         language: str,
         visible: bool = True,
         model: ModelName = ModelName.GPT3_5_TURBO,
@@ -74,7 +77,14 @@ class Tutor(Base, TimestampMixin):
         Returns:
             Tutor: The newly created Tutor object.
         """
-        tutor = cls(name=name, language=language, visible=visible, model=model, personality_prompt=personality_prompt)
+        tutor = cls(
+            name=name,
+            avatar_url=avatar_url,
+            language=language,
+            visible=visible,
+            model=model,
+            personality_prompt=personality_prompt,
+        )
 
         if commit:
             async with async_session() as session:
@@ -86,6 +96,7 @@ class Tutor(Base, TimestampMixin):
     async def update(
         self,
         name: Optional[str] = None,
+        avatar_url: Optional[str] = None,
         language: Optional[str] = None,
         visible: Optional[bool] = None,
         model: Optional[ModelName] = None,
@@ -101,6 +112,8 @@ class Tutor(Base, TimestampMixin):
         """
         if name:
             self.name = name
+        if avatar_url:
+            self.avatar_url = avatar_url
         if language:
             self.language = language
         if visible is not None:

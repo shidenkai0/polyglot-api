@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import AnyHttpUrl, BaseModel
 
 from app.tutor.models import ModelName
 
@@ -36,6 +36,7 @@ class TutorCreate(BaseModel):
     """Tutor create schema."""
 
     name: str
+    avatar_url: AnyHttpUrl
     language: str
     visible: bool = True
     model: PublicModelName = PublicModelName.GPT3_5_TURBO
@@ -46,6 +47,7 @@ class TutorUpdate(BaseModel):
     """Tutor update schema."""
 
     name: Optional[str]
+    avatar_url: Optional[AnyHttpUrl]
     visible: Optional[bool]
     language: Optional[str]
     model: Optional[PublicModelName]
@@ -57,6 +59,7 @@ class TutorRead(BaseModel):
 
     id: UUID
     name: str
+    avatar_url: AnyHttpUrl
     visible: bool
     language: str
     model: PublicModelName

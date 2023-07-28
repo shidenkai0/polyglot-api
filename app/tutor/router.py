@@ -30,6 +30,7 @@ async def create_tutor(tutor_create: TutorCreate, user: SuperUser) -> TutorRead:
     tutor = await Tutor.create(
         name=tutor_create.name,
         language=tutor_create.language,
+        avatar_url=tutor_create.avatar_url,
         visible=tutor_create.visible,
         model=public_to_internal_model_name(tutor_create.model),
     )
@@ -37,6 +38,7 @@ async def create_tutor(tutor_create: TutorCreate, user: SuperUser) -> TutorRead:
     return TutorRead(
         id=tutor.id,
         name=tutor.name,
+        avatar_url=tutor.avatar_url,
         visible=tutor.visible,
         language=tutor.language,
         model=internal_to_public_model_name(tutor.model),
@@ -57,6 +59,7 @@ async def get_tutors(user: ActiveVerifiedUser) -> List[TutorRead]:
         TutorRead(
             id=tutor.id,
             name=tutor.name,
+            avatar_url=tutor.avatar_url,
             visible=tutor.visible,
             language=tutor.language,
             model=internal_to_public_model_name(tutor.model),
@@ -77,6 +80,7 @@ async def get_tutor(tutor_id: UUID, user: SuperUser) -> TutorRead:
     return TutorRead(
         id=tutor.id,
         name=tutor.name,
+        avatar_url=tutor.avatar_url,
         visible=tutor.visible,
         language=tutor.language,
         model=internal_to_public_model_name(tutor.model),
@@ -96,6 +100,7 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
 
     await tutor.update(
         name=tutor_update.name,
+        avatar_url=tutor_update.avatar_url,
         language=tutor_update.language,
         visible=tutor_update.visible,
         model=internal_model,
@@ -104,6 +109,7 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
     return TutorRead(
         id=tutor.id,
         name=tutor.name,
+        avatar_url=tutor.avatar_url,
         visible=tutor.visible,
         language=tutor.language,
         model=internal_to_public_model_name(tutor.model),

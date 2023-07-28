@@ -10,6 +10,7 @@ async def test_tutor_create():
     """Test creating a new Tutor object."""
     tutor = await Tutor.create(
         name="The E",
+        avatar_url="https://cdn-icons-png.flaticon.com/512/168/168726.png",
         language="English",
         visible=True,
         model=ModelName.GPT3_5_TURBO,
@@ -44,6 +45,7 @@ async def test_tutor_get_visible(test_tutor):
     """Test getting visible Tutor objects."""
     await Tutor.create(
         name="The Hidden E",
+        avatar_url="https://cdn-icons-png.flaticon.com/512/168/168726.png",
         language="English",
         visible=False,
         model=ModelName.GPT3_5_TURBO,

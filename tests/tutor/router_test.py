@@ -9,11 +9,18 @@ from app.tutor.schemas import PublicModelName, internal_to_public_model_name
 @pytest.mark.asyncio
 async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient):
     """Test creating a new tutor."""
-    new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": PublicModelName.GPT3_5_TURBO}
+    new_tutor = {
+        "name": "TutorName",
+        "avatar_url": "https://cdn-icons-png.flaticon.com/512/168/168726.png",
+        "language": "English",
+        "visible": True,
+        "model": PublicModelName.GPT3_5_TURBO,
+    }
     response = await authenticated_client_superuser.post("/tutor", json=new_tutor)
     assert response.status_code == 200
-    assert response.json().keys() == {"id", "name", "visible", "language", "model"}
+    assert response.json().keys() == {"id", "name", "avatar_url", "visible", "language", "model"}
     assert response.json()["name"] == new_tutor["name"]
+    assert response.json()["avatar_url"] == new_tutor["avatar_url"]
     assert response.json()["language"] == new_tutor["language"]
     assert response.json()["visible"] == new_tutor["visible"]
     assert response.json()["model"] == new_tutor["model"]
@@ -22,7 +29,13 @@ async def test_create_tutor(authenticated_client_superuser: httpx.AsyncClient):
 @pytest.mark.asyncio
 async def test_create_tutor_as_user(authenticated_client_user: httpx.AsyncClient):
     """Test creating a new tutor as a user."""
-    new_tutor = {"name": "TutorName", "language": "English", "visible": True, "model": PublicModelName.GPT3_5_TURBO}
+    new_tutor = {
+        "name": "TutorName",
+        "avatar_url": "https://cdn-icons-png.flaticon.com/512/168/168726.png",
+        "language": "English",
+        "visible": True,
+        "model": PublicModelName.GPT3_5_TURBO,
+    }
     response = await authenticated_client_user.post("/tutor", json=new_tutor)
     assert response.status_code == 403
 
@@ -35,6 +48,7 @@ async def test_get_tutor(test_tutor: Tutor, authenticated_client_superuser: http
     assert response.json() == {
         "id": str(test_tutor.id),
         "name": test_tutor.name,
+        "avatar_url": test_tutor.avatar_url,
         "visible": test_tutor.visible,
         "language": test_tutor.language,
         "model": internal_to_public_model_name(test_tutor.model),
@@ -50,6 +64,7 @@ async def test_get_tutors_as_superuser(authenticated_client_superuser: httpx.Asy
         {
             "id": str(tutor.id),
             "name": tutor.name,
+            "avatar_url": tutor.avatar_url,
             "visible": tutor.visible,
             "language": tutor.language,
             "model": tutor.model,
@@ -67,6 +82,7 @@ async def test_get_tutors_as_user(authenticated_client_user: httpx.AsyncClient):
         {
             "id": str(tutor.id),
             "name": tutor.name,
+            "avatar_url": tutor.avatar_url,
             "visible": tutor.visible,
             "language": tutor.language,
             "model": tutor.model,
@@ -86,10 +102,16 @@ async def test_get_tutor_not_found(authenticated_client_superuser: httpx.AsyncCl
 @pytest.mark.asyncio
 async def test_update_tutor(test_tutor: Tutor, authenticated_client_superuser: httpx.AsyncClient):
     """Test updating a tutor."""
-    updated_tutor = {"name": "UpdatedName", "language": "UpdatedLanguage", "visible": False}
+    updated_tutor = {
+        "name": "UpdatedName",
+        "avatar_url": "https://cdn-icons-png.flaticon.com/512/168/168726.png",
+        "language": "UpdatedLanguage",
+        "visible": False,
+    }
     response = await authenticated_client_superuser.put(f"/tutor/{test_tutor.id}", json=updated_tutor)
     assert response.status_code == 200
     assert response.json()["name"] == updated_tutor["name"]
+    assert response.json()["avatar_url"] == updated_tutor["avatar_url"]
     assert response.json()["language"] == updated_tutor["language"]
     assert response.json()["visible"] == updated_tutor["visible"]
 
