@@ -39,6 +39,11 @@ services:
       context: .
       dockerfile: Dockerfile.firebase
     command: firebase emulators:start --only auth --token $FIREBASE_TOKEN --project $FIREBASE_PROJECT_ID
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9099/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     ports:
       - 9099:9099
       - 4000:4000
