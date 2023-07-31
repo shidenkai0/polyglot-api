@@ -150,6 +150,7 @@ class PydanticType(sa.types.TypeDecorator):
     """
 
     impl = JSONB
+    cache_ok = True
 
     def __init__(self, pydantic_type):
         super().__init__()
@@ -185,6 +186,7 @@ class ListPydanticType(sa.types.TypeDecorator):
     """
 
     impl = JSONB
+    cache_ok = True
 
     def __init__(self, pydantic_type):
         super().__init__()
