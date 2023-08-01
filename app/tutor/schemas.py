@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel
 
-from app.tutor.models import ModelName
+from app.tutor.models import ModelName, Tutor
 
 
 class PublicModelName(StrEnum):
@@ -63,3 +63,15 @@ class TutorRead(BaseModel):
     visible: bool
     language: str
     model: PublicModelName
+
+    @classmethod
+    def from_tutor(cls, tutor: Tutor) -> "TutorRead":
+        """Create a TutorRead object from a Tutor ORM object."""
+        return cls(
+            id=tutor.id,
+            name=tutor.name,
+            avatar_url=tutor.avatar_url,
+            visible=tutor.visible,
+            language=tutor.language,
+            model=internal_to_public_model_name(tutor.model),
+        )

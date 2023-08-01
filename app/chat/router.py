@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from app.chat.models import ChatSession
 from app.chat.schemas import ChatSessionRead, MessageRead, MessageRole, MessageWrite
 from app.tutor.models import Tutor
+from app.tutor.schemas import TutorRead
 from app.user.auth import authenticate_user
 from app.user.models import User
 
@@ -29,6 +30,7 @@ async def get_chat_sessions(user: ActiveVerifiedUser) -> List[ChatSessionRead]:
             user_id=chat_session.user_id,
             tutor_id=chat_session.tutor_id,
             message_history=[MessageRead.from_openai_message(message) for message in chat_session.message_history],
+            tutor=TutorRead.from_tutor(chat_session.tutor),
         )
         for chat_session in chat_sessions
     ]
@@ -47,6 +49,7 @@ async def get_chat_session(chat_id: UUID, user: ActiveVerifiedUser) -> ChatSessi
         user_id=chat_session.user_id,
         tutor_id=chat_session.tutor_id,
         message_history=[MessageRead.from_openai_message(message) for message in chat_session.message_history],
+        tutor=TutorRead.from_tutor(chat_session.tutor),
     )
 
 
@@ -66,6 +69,7 @@ async def start_chat_session(user: ActiveVerifiedUser, tutor_id: UUID) -> ChatSe
         user_id=chat_session.user_id,
         tutor_id=chat_session.tutor_id,
         message_history=[MessageRead.from_openai_message(message) for message in chat_session.message_history],
+        tutor=TutorRead.from_tutor(tutor),
     )
 
 

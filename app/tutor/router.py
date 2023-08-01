@@ -8,7 +8,6 @@ from app.tutor.schemas import (
     TutorCreate,
     TutorRead,
     TutorUpdate,
-    internal_to_public_model_name,
     public_to_internal_model_name,
 )
 from app.user.auth import ActiveVerifiedUser, SuperUser
@@ -35,14 +34,7 @@ async def create_tutor(tutor_create: TutorCreate, user: SuperUser) -> TutorRead:
         model=public_to_internal_model_name(tutor_create.model),
     )
 
-    return TutorRead(
-        id=tutor.id,
-        name=tutor.name,
-        avatar_url=tutor.avatar_url,
-        visible=tutor.visible,
-        language=tutor.language,
-        model=internal_to_public_model_name(tutor.model),
-    )
+    return TutorRead.from_tutor(tutor)
 
 
 @router.get("/tutors")
@@ -55,17 +47,7 @@ async def get_tutors(user: ActiveVerifiedUser) -> List[TutorRead]:
     elif user:
         tutors = await Tutor.get_visible()
 
-    return [
-        TutorRead(
-            id=tutor.id,
-            name=tutor.name,
-            avatar_url=tutor.avatar_url,
-            visible=tutor.visible,
-            language=tutor.language,
-            model=internal_to_public_model_name(tutor.model),
-        )
-        for tutor in tutors
-    ]
+    return [TutorRead.from_tutor(tutor) for tutor in tutors]
 
 
 @router.get("/tutor/{tutor_id}")
@@ -77,14 +59,7 @@ async def get_tutor(tutor_id: UUID, user: SuperUser) -> TutorRead:
     if tutor is None:
         raise TUTOR_NOT_FOUND
 
-    return TutorRead(
-        id=tutor.id,
-        name=tutor.name,
-        avatar_url=tutor.avatar_url,
-        visible=tutor.visible,
-        language=tutor.language,
-        model=internal_to_public_model_name(tutor.model),
-    )
+    return TutorRead.from_tutor(tutor)
 
 
 @router.put("/tutor/{tutor_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Tutor not found"}})
@@ -106,14 +81,7 @@ async def update_tutor(tutor_id: UUID, tutor_update: TutorUpdate, user: SuperUse
         model=internal_model,
     )
 
-    return TutorRead(
-        id=tutor.id,
-        name=tutor.name,
-        avatar_url=tutor.avatar_url,
-        visible=tutor.visible,
-        language=tutor.language,
-        model=internal_to_public_model_name(tutor.model),
-    )
+    return TutorRead.from_tutor(tutor)
 
 
 @router.delete("/tutor/{tutor_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Tutor not found"}})

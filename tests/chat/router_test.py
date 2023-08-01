@@ -1,9 +1,12 @@
+import json
+
 import httpx
 import pytest
 
 from app.chat.models import ChatSession
 from app.chat.router import CHAT_SESSION_NOT_FOUND
 from app.chat.schemas import MessageRole
+from app.tutor.schemas import TutorRead
 
 
 @pytest.mark.asyncio
@@ -16,6 +19,7 @@ async def test_get_chat_sessions(test_chat_session: ChatSession, authenticated_c
         "id": str(test_chat_session.id),
         "user_id": str(test_chat_session.user_id),
         "tutor_id": str(test_chat_session.tutor_id),
+        "tutor": json.loads(TutorRead.from_tutor(test_chat_session.tutor).json()),
         "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR}],
     }
 
@@ -29,6 +33,7 @@ async def test_get_chat_session(test_chat_session: ChatSession, authenticated_cl
         "id": str(test_chat_session.id),
         "user_id": str(test_chat_session.user_id),
         "tutor_id": str(test_chat_session.tutor_id),
+        "tutor": json.loads(TutorRead.from_tutor(test_chat_session.tutor).json()),
         "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR}],
     }
 
@@ -49,9 +54,10 @@ async def test_start_chat_session(authenticated_client_user: httpx.AsyncClient, 
     assert response.status_code == 200
     chat_session = await ChatSession.get(response.json()["id"])
     assert chat_session is not None
-    assert response.json().keys() == {"id", "user_id", "tutor_id", "message_history"}
+    assert response.json().keys() == {"id", "user_id", "tutor_id", "tutor", "message_history"}
     assert response.json()["user_id"] == str(test_user.id)
     assert response.json()["tutor_id"] == str(test_tutor.id)
+    assert response.json()["tutor"] == json.loads(TutorRead.from_tutor(test_tutor).json())
     assert len(response.json()["message_history"]) == 1
     assert response.json()["message_history"][0]["role"] == MessageRole.TUTOR
     assert response.json()["message_history"][0]["content"] == chat_session.message_history[0].content

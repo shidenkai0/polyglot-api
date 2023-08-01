@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.tutor.schemas import TutorRead
+
 
 class OpenAIMessageRole(StrEnum):
     """Role of a message in an OpenAI chat session."""
@@ -99,6 +101,7 @@ class ChatSessionBase(BaseModel):
 class ChatSessionRead(ChatSessionBase):
     id: UUID
     message_history: List[MessageRead]
+    tutor: TutorRead
 
 
 class ChatSessionCreate(ChatSessionBase):
