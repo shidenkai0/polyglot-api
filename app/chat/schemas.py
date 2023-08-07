@@ -40,6 +40,7 @@ class OpenAIMessage(BaseModel):
     role: OpenAIMessageRole
     content: str = ""
     name: Optional[str] = None
+    timestamp_ms: Optional[int] = None
     function_call: Optional[dict] = None
 
 
@@ -62,6 +63,7 @@ internal_to_external_role = {
 
 class MessageRead(MessageBase):
     role: MessageRole
+    timestamp_ms: int
 
     class Config:
         use_enum_values = True
@@ -77,7 +79,11 @@ class MessageRead(MessageBase):
         Returns:
             MessageRead: The message for the language tutoring session.
         """
-        return cls(role=internal_to_external_role[openai_message.role], content=openai_message.content)
+        return cls(
+            role=internal_to_external_role[openai_message.role],
+            content=openai_message.content,
+            timestamp_ms=openai_message.timestamp_ms,
+        )
 
 
 class MessageWrite(MessageBase):

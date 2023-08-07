@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from openai import ChatCompletion
@@ -17,7 +18,7 @@ async def get_chat_response(model: str, messages: List[OpenAIMessage], **kwargs)
     Returns:
         Message: The response message from the Chat Completion API.
     """
-    message_dicts = [message.dict(exclude_none=True) for message in messages]
+    message_dicts = [message.dict(exclude_none=True, exclude={'timestamp_ms'}) for message in messages]
     response = await ChatCompletion.acreate(
         model=model,
         messages=message_dicts,
@@ -25,4 +26,5 @@ async def get_chat_response(model: str, messages: List[OpenAIMessage], **kwargs)
     )
     print(f"MAX TOKENS: {kwargs['max_tokens']}")
     ai_message = OpenAIMessage.parse_obj(response.choices[0].message)
+    ai_message.timestamp_ms = int(datetime.now().timestamp() * 1e3)
     return ai_message

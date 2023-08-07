@@ -85,7 +85,7 @@ seed_db: migrate
 	docker-compose run -e PYTHONPATH=/app web python app/tools/seed_db.py
 
 
-run: build_local
+run:
 	docker-compose run --service-ports web
 
 test: migrate

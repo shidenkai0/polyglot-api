@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import List, Optional, Sequence
 
 from sqlalchemy import UUID, ForeignKey, Integer, text
@@ -152,7 +153,7 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             result = await session.execute(query)
             return result.scalars().first()
 
-    async def get_response(self, message: MessageWrite, commit: bool = False) -> str:
+    async def get_response(self, message: MessageWrite, commit: bool = False) -> OpenAIMessage:
         """
         Get a response from the AI tutor to the user's message.
 
@@ -167,7 +168,12 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             role=OpenAIMessageRole.SYSTEM, content=self.tutor.get_system_prompt(student_name=self.user.name)
         )
 
-        user_message = OpenAIMessage(role=OpenAIMessageRole.USER, content=message.content, name=self.user.name)
+        user_message = OpenAIMessage(
+            role=OpenAIMessageRole.USER,
+            content=message.content,
+            name=self.user.name,
+            timestamp_ms=datetime.now().timestamp() * 1e3,
+        )
         messages = [system_message] + self.message_history + [user_message]
         if len(messages) > self.max_messages:
             raise MessageHistoryTooLongError(f"Message history is too long. Max messages is {self.max_messages}.")
@@ -180,7 +186,7 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             async with async_session() as session:
                 session.add(self)
                 await session.commit()
-        return ai_message.content
+        return ai_message
 
     async def get_conversation_opener(self, commit: bool = False) -> str:
         """

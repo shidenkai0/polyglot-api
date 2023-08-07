@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.chat.models import ChatSession
-from app.chat.schemas import ChatSessionRead, MessageRead, MessageRole, MessageWrite
+from app.chat.schemas import ChatSessionRead, MessageRead, MessageWrite
 from app.tutor.models import Tutor
 from app.tutor.schemas import TutorRead
 from app.user.auth import authenticate_user
@@ -83,10 +83,7 @@ async def post_chat_message(chat_id: UUID, message: MessageWrite, user: ActiveVe
         message=message,
         commit=True,
     )
-    return MessageRead(
-        role=MessageRole.TUTOR,
-        content=response,
-    )
+    return MessageRead.from_openai_message(response)
 
 
 @router.delete("/chat/{chat_id}", responses={status.HTTP_404_NOT_FOUND: {"description": "Chat session not found"}})

@@ -20,7 +20,7 @@ async def test_get_chat_sessions(test_chat_session: ChatSession, authenticated_c
         "user_id": str(test_chat_session.user_id),
         "tutor_id": str(test_chat_session.tutor_id),
         "tutor": json.loads(TutorRead.from_tutor(test_chat_session.tutor).json()),
-        "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR}],
+        "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR, 'timestamp_ms': 0}],
     }
 
 
@@ -34,7 +34,7 @@ async def test_get_chat_session(test_chat_session: ChatSession, authenticated_cl
         "user_id": str(test_chat_session.user_id),
         "tutor_id": str(test_chat_session.tutor_id),
         "tutor": json.loads(TutorRead.from_tutor(test_chat_session.tutor).json()),
-        "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR}],
+        "message_history": [{'content': 'Hello', 'role': MessageRole.TUTOR, 'timestamp_ms': 0}],
     }
 
 

@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+from datetime import datetime
 
 import firebase_admin
 from firebase_admin import auth, credentials
@@ -37,17 +38,31 @@ async def create_tutor(
 
 async def create_chat_session(user_id: uuid.UUID, tutor_id: uuid.UUID) -> ChatSession:
     message_history = [
-        OpenAIMessage(role=OpenAIMessageRole.ASSISTANT, content="Hello"),
-        OpenAIMessage(role=OpenAIMessageRole.USER, content="Hello"),
-        OpenAIMessage(role=OpenAIMessageRole.ASSISTANT, content="How can I assist you today?"),
-        OpenAIMessage(role=OpenAIMessageRole.USER, content="I would like to practice my language skills"),
         OpenAIMessage(
-            role=OpenAIMessageRole.ASSISTANT, content="Absolutely, we can start by discussing a variety of topics"
+            role=OpenAIMessageRole.ASSISTANT, content="Hello", timestamp_ms=(datetime.now().timestamp() - 120) * 1e3
+        ),
+        OpenAIMessage(
+            role=OpenAIMessageRole.USER, content="Hello", timestamp_ms=(datetime.now().timestamp() - 60) * 1e3
+        ),
+        OpenAIMessage(
+            role=OpenAIMessageRole.ASSISTANT,
+            content="How can I assist you today?",
+            timestamp_ms=(datetime.now().timestamp() - 55) * 1e3,
+        ),
+        OpenAIMessage(
+            role=OpenAIMessageRole.USER,
+            content="I would like to practice my language skills",
+            timestamp_ms=(datetime.now().timestamp() - 5) * 1e3,
+        ),
+        OpenAIMessage(
+            role=OpenAIMessageRole.ASSISTANT,
+            content="Absolutely, we can start by discussing a variety of topics",
+            timestamp_ms=datetime.now().timestamp() * 1e3,
         ),
     ]
 
     chat_session = await ChatSession.create(
-        user_id=user_id, tutor_id=tutor_id, message_history=message_history, max_tokens=10, max_messages=10
+        user_id=user_id, tutor_id=tutor_id, message_history=message_history, max_tokens=500, max_messages=100
     )
     return chat_session
 
@@ -60,7 +75,7 @@ async def seed_db():
     user = await create_user(
         email="testuser@example.com",
         firebase_uid=firebase_user.uid,
-        name="Test User",
+        name="Testuser",
         language="en",
         is_superuser=False,
     )
@@ -69,11 +84,21 @@ async def seed_db():
     tutors = []
     for i in range(2):
         tutors.append(
-            await create_tutor(name=f"Frenchie {i+1}", avatar_url="", language="french", model=ModelName.GPT3_5_TURBO)
+            await create_tutor(
+                name=f"Frenchie {i+1}",
+                avatar_url="https://cdn-icons-png.flaticon.com/512/168/168726.png",
+                language="french",
+                model=ModelName.GPT3_5_TURBO,
+            )
         )
 
         tutors.append(
-            await create_tutor(name=f"Englie {i+1}", avatar_url="", language="english", model=ModelName.GPT3_5_TURBO)
+            await create_tutor(
+                name=f"Englie {i+1}",
+                avatar_url="https://cdn-icons-png.flaticon.com/512/168/168726.png",
+                language="english",
+                model=ModelName.GPT3_5_TURBO,
+            )
         )
 
     # Create chat sessions

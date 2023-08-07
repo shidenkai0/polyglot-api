@@ -1,3 +1,5 @@
+from datetime import datetime
+from unittest.mock import patch
 from uuid import UUID
 
 import pytest
@@ -124,13 +126,17 @@ async def test_chat_session_get_response(test_chat_session: ChatSession):
     """Test getting a response from an AI tutor."""
     initial_message_history = test_chat_session.message_history
     user_message = MessageWrite(content="Hello")
-    response = await test_chat_session.get_response(user_message, commit=True)
+    with patch('app.chat.models.datetime') as mock_datetime:
+        mock_datetime.now.return_value = datetime.fromtimestamp(0)
+        response = await test_chat_session.get_response(user_message, commit=True)
     assert response is not None
     chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is not None
     assert chat_session.message_history == initial_message_history + [
-        OpenAIMessage(role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.name),
-        OpenAIMessage(role=OpenAIMessageRole.ASSISTANT, content=response),
+        OpenAIMessage(
+            role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.name, timestamp_ms=0
+        ),
+        response,
     ]
 
 
