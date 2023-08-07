@@ -39,7 +39,7 @@ charset-normalizer==3.1.0
     #   requests
 click==8.1.3
     # via uvicorn
-cryptography==41.0.1
+cryptography==41.0.3
     # via pyjwt
 dataclasses-json==0.5.8
     # via langchain
@@ -116,9 +116,9 @@ idna==3.4
     #   httpx
     #   requests
     #   yarl
-langchain==0.0.202
+langchain==0.0.254
     # via -r requirements.in
-langchainplus-sdk==0.0.10
+langsmith==0.0.19
     # via langchain
 mako==1.2.4
     # via alembic
@@ -174,7 +174,7 @@ pydantic[email]==1.10.9
     #   -r requirements.in
     #   fastapi
     #   langchain
-    #   langchainplus-sdk
+    #   langsmith
     #   openapi-schema-pydantic
 pyjwt[crypto]==2.6.0
     # via firebase-admin
@@ -188,7 +188,7 @@ requests==2.31.0
     #   google-api-core
     #   google-cloud-storage
     #   langchain
-    #   langchainplus-sdk
+    #   langsmith
     #   openai
 rsa==4.9
     # via google-auth
@@ -209,9 +209,7 @@ sqlalchemy[asyncio]==2.0.16
 starlette==0.27.0
     # via fastapi
 tenacity==8.2.2
-    # via
-    #   langchain
-    #   langchainplus-sdk
+    # via langchain
 tqdm==4.65.0
     # via openai
 typing-extensions==4.6.3
