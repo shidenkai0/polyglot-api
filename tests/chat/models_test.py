@@ -126,15 +126,20 @@ async def test_chat_session_get_response(test_chat_session: ChatSession):
     """Test getting a response from an AI tutor."""
     initial_message_history = test_chat_session.message_history
     user_message = MessageWrite(content="Hello")
-    with patch('app.chat.models.datetime') as mock_datetime:
+    with patch('app.chat.models.datetime') as mock_datetime, patch('app.chat.models.uuid') as mock_uuid:
         mock_datetime.now.return_value = datetime.fromtimestamp(0)
+        mock_uuid.uuid4.return_value = UUID('11111111-1111-4111-8111-111111111111')
         response = await test_chat_session.get_response(user_message, commit=True)
     assert response is not None
     chat_session = await ChatSession.get(test_chat_session.id)
     assert chat_session is not None
     assert chat_session.message_history == initial_message_history + [
         OpenAIMessage(
-            role=OpenAIMessageRole.USER, content=user_message.content, name=test_chat_session.user.name, timestamp_ms=0
+            role=OpenAIMessageRole.USER,
+            content=user_message.content,
+            name=test_chat_session.user.name,
+            timestamp_ms=0,
+            uuid='11111111-1111-4111-8111-111111111111',
         ),
         response,
     ]

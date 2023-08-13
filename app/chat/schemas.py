@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
 
 from app.tutor.schemas import TutorRead
 
@@ -40,6 +40,7 @@ class OpenAIMessage(BaseModel):
     role: OpenAIMessageRole
     content: str = ""
     name: Optional[str] = None
+    uuid: Optional[str] = None
     timestamp_ms: Optional[int] = None
     function_call: Optional[dict] = None
 
@@ -64,6 +65,7 @@ internal_to_external_role = {
 class MessageRead(MessageBase):
     role: MessageRole
     timestamp_ms: int
+    uuid: UUID4
 
     class Config:
         use_enum_values = True
@@ -82,6 +84,7 @@ class MessageRead(MessageBase):
         return cls(
             role=internal_to_external_role[openai_message.role],
             content=openai_message.content,
+            uuid=openai_message.uuid,
             timestamp_ms=openai_message.timestamp_ms,
         )
 

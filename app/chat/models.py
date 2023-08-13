@@ -173,6 +173,7 @@ class ChatSession(Base, TimestampMixin, DeleteMixin):
             content=message.content,
             name=self.user.name,
             timestamp_ms=datetime.now().timestamp() * 1e3,
+            uuid=str(uuid.uuid4()),
         )
         messages = [system_message] + self.message_history + [user_message]
         if len(messages) > self.max_messages:

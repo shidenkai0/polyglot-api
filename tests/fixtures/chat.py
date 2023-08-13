@@ -20,7 +20,14 @@ async def test_chat_session(
     chat_session = await ChatSession.create(
         user_id=test_user.id,
         tutor_id=test_tutor.id,
-        message_history=[OpenAIMessage(role=OpenAIMessageRole.ASSISTANT, content="Hello", timestamp_ms=0)],
+        message_history=[
+            OpenAIMessage(
+                role=OpenAIMessageRole.ASSISTANT,
+                content="Hello",
+                timestamp_ms=0,
+                uuid='11111111-1111-4111-8111-111111111111',
+            )
+        ],
         max_tokens=10,
         max_messages=10,
     )

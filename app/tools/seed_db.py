@@ -39,25 +39,34 @@ async def create_tutor(
 async def create_chat_session(user_id: uuid.UUID, tutor_id: uuid.UUID) -> ChatSession:
     message_history = [
         OpenAIMessage(
-            role=OpenAIMessageRole.ASSISTANT, content="Hello", timestamp_ms=(datetime.now().timestamp() - 120) * 1e3
+            role=OpenAIMessageRole.ASSISTANT,
+            content="Hello",
+            timestamp_ms=(datetime.now().timestamp() - 120) * 1e3,
+            uuid=str(uuid.uuid4()),
         ),
         OpenAIMessage(
-            role=OpenAIMessageRole.USER, content="Hello", timestamp_ms=(datetime.now().timestamp() - 60) * 1e3
+            role=OpenAIMessageRole.USER,
+            content="Hello",
+            timestamp_ms=(datetime.now().timestamp() - 60) * 1e3,
+            uuid=str(uuid.uuid4()),
         ),
         OpenAIMessage(
             role=OpenAIMessageRole.ASSISTANT,
             content="How can I assist you today?",
             timestamp_ms=(datetime.now().timestamp() - 55) * 1e3,
+            uuid=str(uuid.uuid4()),
         ),
         OpenAIMessage(
             role=OpenAIMessageRole.USER,
             content="I would like to practice my language skills",
             timestamp_ms=(datetime.now().timestamp() - 5) * 1e3,
+            uuid=str(uuid.uuid4()),
         ),
         OpenAIMessage(
             role=OpenAIMessageRole.ASSISTANT,
             content="Absolutely, we can start by discussing a variety of topics",
             timestamp_ms=datetime.now().timestamp() * 1e3,
+            uuid=str(uuid.uuid4()),
         ),
     ]
 
